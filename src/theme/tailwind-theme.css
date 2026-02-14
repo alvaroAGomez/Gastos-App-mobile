@@ -1,0 +1,15 @@
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@theme {
+    /* Ionic Color Mapping for Tailwind */
+    --color-primary: var(--ion-color-primary);
+    --color-secondary: var(--ion-color-secondary);
+    --color-tertiary: var(--ion-color-tertiary);
+    --color-success: var(--ion-color-success);
+    --color-warning: var(--ion-color-warning);
+    --color-danger: var(--ion-color-danger);
+    --color-light: var(--ion-color-light);
+    --color-medium: var(--ion-color-medium);
+    --color-dark: var(--ion-color-dark);
+}
