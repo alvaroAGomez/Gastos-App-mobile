@@ -1,0 +1,49 @@
+<app-header title="Dashboard" [showBackButton]="false"></app-header>
+
+<ion-content class="ion-padding">
+    <div class="dashboard-container">
+        <!-- Resumen del mes -->
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title>Resumen del Mes</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <h2>${{ totalGastosMes | number:'1.2-2' }}</h2>
+                <p>Total gastado este mes</p>
+            </ion-card-content>
+        </ion-card>
+
+        <!-- Accesos rápidos -->
+        <div class="quick-actions">
+            <ion-button routerLink="/app/gastos/nuevo" expand="block">
+                <ion-icon slot="start" name="add-circle"></ion-icon>
+                Nuevo Gasto
+            </ion-button>
+            <ion-button routerLink="/app/reportes" expand="block" fill="outline">
+                <ion-icon slot="start" name="bar-chart"></ion-icon>
+                Ver Reportes
+            </ion-button>
+        </div>
+
+        <!-- Últimas transacciones -->
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title>Últimas Transacciones</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <ion-list *ngIf="ultimasTransacciones.length > 0; else emptyState">
+                    <ion-item *ngFor="let transaccion of ultimasTransacciones">
+                        <ion-label>
+                            <h3>{{ transaccion.descripcion }}</h3>
+                            <p>{{ transaccion.fecha | date:'short' }}</p>
+                        </ion-label>
+                        <ion-note slot="end">${{ transaccion.monto }}</ion-note>
+                    </ion-item>
+                </ion-list>
+                <ng-template #emptyState>
+                    <app-empty-state message="No hay transacciones recientes"></app-empty-state>
+                </ng-template>
+            </ion-card-content>
+        </ion-card>
+    </div>
+</ion-content>

@@ -1,0 +1,21 @@
+<app-header title="Cuotas Pendientes" [showBackButton]="false"></app-header>
+<ion-content>
+    <div class="cuotas-container">
+        <ion-list *ngIf="cuotas.length > 0; else empty">
+            <ion-item *ngFor="let cuota of cuotas">
+                <ion-label>
+                    <h2>{{ cuota.descripcion }}</h2>
+                    <p>{{ cuota.tarjetaNombre }} - Cuota {{ cuota.numeroCuota }}/{{ cuota.totalCuotas }}</p>
+                    <p>Vence: {{ cuota.fechaVencimiento | date:'mediumDate' }}</p>
+                </ion-label>
+                <ion-note slot="end" color="warning">
+                    ${{ cuota.monto | number:'1.2-2' }}
+                </ion-note>
+            </ion-item>
+        </ion-list>
+
+        <ng-template #empty>
+            <app-empty-state message="No tienes cuotas pendientes" icon="calendar-outline"></app-empty-state>
+        </ng-template>
+    </div>
+</ion-content>

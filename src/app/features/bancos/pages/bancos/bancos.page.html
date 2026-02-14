@@ -1,0 +1,14 @@
+<app-header title="Bancos" [showBackButton]="false"></app-header>
+<ion-content class="ion-padding">
+    <ion-list *ngIf="bancos.length > 0; else empty">
+        <ion-item *ngFor="let banco of bancos">
+            <ion-avatar slot="start">
+                <div [style.background-color]="banco.color || '#ccc'" class="bank-avatar"></div>
+            </ion-avatar>
+            <ion-label>{{ banco.nombre }}</ion-label>
+        </ion-item>
+    </ion-list>
+    <ng-template #empty>
+        <app-empty-state message="No hay bancos registrados"></app-empty-state>
+    </ng-template>
+</ion-content>

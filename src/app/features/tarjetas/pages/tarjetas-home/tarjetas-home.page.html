@@ -1,0 +1,35 @@
+<app-header title="Mis Tarjetas" [showBackButton]="false"></app-header>
+<ion-content>
+    <ion-segment [value]="segment" (ionChange)="segmentChanged($event)" class="ion-margin-bottom">
+        <ion-segment-button value="credito">
+            <ion-label>Crédito</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="debito">
+            <ion-label>Débito</ion-label>
+        </ion-segment-button>
+    </ion-segment>
+
+    <div class="tarjetas-container">
+        <div *ngIf="segment === 'credito'">
+            <!-- Lista Crédito -->
+            <app-empty-state message="No hay tarjetas de crédito"></app-empty-state>
+
+            <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+                <ion-fab-button routerLink="/app/tarjetas/credito/nueva">
+                    <ion-icon name="add"></ion-icon>
+                </ion-fab-button>
+            </ion-fab>
+        </div>
+
+        <div *ngIf="segment === 'debito'">
+            <!-- Lista Débito -->
+            <app-empty-state message="No hay tarjetas de débito"></app-empty-state>
+
+            <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+                <ion-fab-button routerLink="/app/tarjetas/debito/nueva">
+                    <ion-icon name="add"></ion-icon>
+                </ion-fab-button>
+            </ion-fab>
+        </div>
+    </div>
+</ion-content>

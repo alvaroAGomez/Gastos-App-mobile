@@ -1,0 +1,42 @@
+.social-btn {
+  --box-shadow: none;
+  font-weight: 500;
+  margin-bottom: 12px;
+  height: 48px;
+
+  &.google {
+    --background: #ffffff;
+    --color: #1f1f1f;
+    --border-width: 1px;
+    --border-style: solid;
+    --border-color: #dadce0;
+    --ripple-color: #dadce0;
+  }
+
+  &.facebook {
+    --background: #1877f2;
+    --color: #ffffff;
+    --ripple-color: #155cb4;
+  }
+
+  &.twitter {
+    --background: #000000; /* X brand color */
+    --color: #ffffff;
+    --ripple-color: #333333;
+  }
+
+  &.apple {
+    --background: #000000;
+    --color: #ffffff;
+    --ripple-color: #333333;
+  }
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  ion-spinner {
+    width: 20px;
+    height: 20px;
+  }
+}

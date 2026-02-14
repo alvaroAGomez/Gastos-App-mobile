@@ -1,0 +1,5 @@
+<app-header title="Gastos Mensuales" [showBackButton]="true"></app-header>
+<ion-content class="ion-padding">
+    <app-expense-charts chartType="bar" [labels]="chartLabels" [datasets]="chartData"
+        title="Gastos por Mes"></app-expense-charts>
+</ion-content>

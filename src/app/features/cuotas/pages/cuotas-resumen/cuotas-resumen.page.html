@@ -1,0 +1,7 @@
+<app-header title="Resumen Cuotas" [showBackButton]="false"></app-header>
+<ion-content class="ion-padding">
+    <div *ngIf="resumen">
+        <h2>Total Anual: {{ resumen.total | currency:'USD' }}</h2>
+        <!-- Placeholder gráfico/lista -->
+    </div>
+</ion-content>

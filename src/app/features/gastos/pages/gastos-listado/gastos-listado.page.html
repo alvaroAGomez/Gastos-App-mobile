@@ -1,0 +1,28 @@
+<app-header title="Mis Gastos" [showBackButton]="false"></app-header>
+
+<ion-content>
+    <div class="gastos-container">
+        <ion-list *ngIf="gastos.length > 0; else empty">
+            <ion-item *ngFor="let gasto of gastos" [routerLink]="['/app/gastos', gasto.id]">
+                <ion-label>
+                    <h2>{{ gasto.descripcion }}</h2>
+                    <p>{{ gasto.fecha | date:'mediumDate' }}</p>
+                    <p class="category">{{ gasto.categoriaNombre }}</p>
+                </ion-label>
+                <ion-note slot="end" color="primary">
+                    ${{ gasto.monto | number:'1.2-2' }}
+                </ion-note>
+            </ion-item>
+        </ion-list>
+
+        <ng-template #empty>
+            <app-empty-state message="No hay gastos registrados" icon="wallet-outline"></app-empty-state>
+        </ng-template>
+
+        <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+            <ion-fab-button routerLink="/app/gastos/nuevo">
+                <ion-icon name="add"></ion-icon>
+            </ion-fab-button>
+        </ion-fab>
+    </div>
+</ion-content>

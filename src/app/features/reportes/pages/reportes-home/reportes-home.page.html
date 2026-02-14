@@ -1,0 +1,34 @@
+<app-header title="Reportes" [showBackButton]="false"></app-header>
+
+<ion-content class="ion-padding">
+    <div class="reportes-container">
+        <ion-list>
+            <ion-item button routerLink="/app/reportes/gastos-mensuales">
+                <ion-icon name="calendar" slot="start"></ion-icon>
+                <ion-label>
+                    <h2>Gastos Mensuales</h2>
+                    <p>Ver gastos agrupados por mes</p>
+                </ion-label>
+                <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+
+            <ion-item button routerLink="/app/reportes/por-categoria">
+                <ion-icon name="pricetags" slot="start"></ion-icon>
+                <ion-label>
+                    <h2>Por Categoría</h2>
+                    <p>Distribución de gastos por categoría</p>
+                </ion-label>
+                <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+
+            <ion-item button routerLink="/app/reportes/por-tarjeta">
+                <ion-icon name="card" slot="start"></ion-icon>
+                <ion-label>
+                    <h2>Por Tarjeta</h2>
+                    <p>Gastos distribuidos por tarjeta</p>
+                </ion-label>
+                <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+        </ion-list>
+    </div>
+</ion-content>

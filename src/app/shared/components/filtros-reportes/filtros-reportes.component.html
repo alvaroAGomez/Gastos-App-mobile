@@ -1,0 +1,81 @@
+<div class="filtros-container">
+    <!-- Año -->
+    <ion-item *ngIf="showAnio">
+        <ion-label>Año</ion-label>
+        <ion-select [(ngModel)]="filtros.anio" (ionChange)="onFiltroChange()">
+            <ion-select-option *ngFor="let anio of anios" [value]="anio">{{ anio }}</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <!-- Mes -->
+    <ion-item *ngIf="showMes">
+        <ion-label>Mes</ion-label>
+        <ion-select [(ngModel)]="filtros.mes" (ionChange)="onFiltroChange()">
+            <ion-select-option [value]="undefined">Todos</ion-select-option>
+            <ion-select-option *ngFor="let mes of meses" [value]="mes.value">{{ mes.label }}</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <!-- Rango de fechas -->
+    <ng-container *ngIf="showRangoFechas">
+        <ion-item>
+            <ion-label>Desde</ion-label>
+            <ion-datetime-button datetime="datetime-desde"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                    <ion-datetime id="datetime-desde" [(ngModel)]="filtros.desde" (ionChange)="onFiltroChange()"
+                        display-format="DD/MM/YYYY">
+                    </ion-datetime>
+                </ng-template>
+            </ion-modal>
+        </ion-item>
+
+        <ion-item>
+            <ion-label>Hasta</ion-label>
+            <ion-datetime-button datetime="datetime-hasta"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                    <ion-datetime id="datetime-hasta" [(ngModel)]="filtros.hasta" (ionChange)="onFiltroChange()"
+                        display-format="DD/MM/YYYY">
+                    </ion-datetime>
+                </ng-template>
+            </ion-modal>
+        </ion-item>
+    </ng-container>
+
+    <!-- Tarjeta -->
+    <ion-item *ngIf="showTarjeta">
+        <ion-label>Tarjeta</ion-label>
+        <ion-select [(ngModel)]="filtros.tarjetaId" (ionChange)="onFiltroChange()">
+            <ion-select-option [value]="undefined">Todas</ion-select-option>
+            <ion-select-option *ngFor="let tarjeta of tarjetas" [value]="tarjeta.id">{{ tarjeta.nombre
+                }}</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <!-- Categoría -->
+    <ion-item *ngIf="showCategoria">
+        <ion-label>Categoría</ion-label>
+        <ion-select [(ngModel)]="filtros.categoriaId" (ionChange)="onFiltroChange()">
+            <ion-select-option [value]="undefined">Todas</ion-select-option>
+            <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.id">{{ categoria.nombre
+                }}</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <!-- Agrupación -->
+    <ion-item *ngIf="showAgrupacion">
+        <ion-label>Agrupación</ion-label>
+        <ion-select [(ngModel)]="filtros.agrupacion" (ionChange)="onFiltroChange()">
+            <ion-select-option value="dia">Por día</ion-select-option>
+            <ion-select-option value="semana">Por semana</ion-select-option>
+            <ion-select-option value="mes">Por mes</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <!-- Botón limpiar -->
+    <ion-button expand="block" fill="clear" (click)="limpiarFiltros()" class="limpiar-btn">
+        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+        Limpiar filtros
+    </ion-button>
+</div>
