@@ -1,28 +1,183 @@
-<app-header title="Mis Gastos" [showBackButton]="false"></app-header>
+<!-- Fecha Filter Modal -->
+<ion-modal [isOpen]="showFechaModal" (didDismiss)="showFechaModal = false" class="fecha-filter-modal">
+    <ng-template>
+        <div class="filter-modal-wrapper">
+            <div class="filter-modal-header">
+                <h2 class="filter-modal-title">Rango de fechas</h2>
+                <button class="filter-close-btn" (click)="showFechaModal = false">
+                    <ion-icon name="close"></ion-icon>
+                </button>
+            </div>
+            <div class="range-info">
+                <div class="selection-box" [class.active]="selectionState === 'start'">
+                    <span class="selection-label">Desde</span>
+                    <span class="selection-value">{{ fechaDesde ? (fechaDesde | date:'dd MMM') : '---' }}</span>
+                </div>
+                <div class="selection-divider">
+                    <ion-icon name="arrow-forward"></ion-icon>
+                </div>
+                <div class="selection-box" [class.active]="selectionState === 'end'">
+                    <span class="selection-label">Hasta</span>
+                    <span class="selection-value">{{ fechaHasta ? (fechaHasta | date:'dd MMM') : (fechaDesde ?
+                        'Seleccione...' : '---') }}</span>
+                </div>
+            </div>
 
-<ion-content>
-    <div class="gastos-container">
-        <ion-list *ngIf="gastos.length > 0; else empty">
-            <ion-item *ngFor="let gasto of gastos" [routerLink]="['/app/gastos', gasto.id]">
-                <ion-label>
-                    <h2>{{ gasto.descripcion }}</h2>
-                    <p>{{ gasto.fecha | date:'mediumDate' }}</p>
-                    <p class="category">{{ gasto.categoriaNombre }}</p>
-                </ion-label>
-                <ion-note slot="end" color="primary">
-                    ${{ gasto.monto | number:'1.2-2' }}
-                </ion-note>
-            </ion-item>
-        </ion-list>
+            <div class="calendar-wrap">
+                <ion-datetime presentation="date" [value]="calendarValue" (ionChange)="setCalendarValue($event)"
+                    [max]="hoy" locale="es-AR" [highlightedDates]="highlightedDates" class="range-datetime">
+                </ion-datetime>
+            </div>
 
-        <ng-template #empty>
-            <app-empty-state message="No hay gastos registrados" icon="wallet-outline"></app-empty-state>
-        </ng-template>
+            <div class="filter-modal-footer">
+                <button class="filter-apply-btn" (click)="applyFechaFilter()">Aplicar</button>
+            </div>
+        </div>
+    </ng-template>
+</ion-modal>
 
-        <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-            <ion-fab-button routerLink="/app/gastos/nuevo">
-                <ion-icon name="add"></ion-icon>
-            </ion-fab-button>
-        </ion-fab>
+<!-- Tarjeta Sheet -->
+<ion-modal [isOpen]="showTarjetaSheet" (didDismiss)="showTarjetaSheet = false" class="sheet-modal">
+    <ng-template>
+        <div class="sheet-wrapper">
+            <div class="sheet-handle"></div>
+            <h2 class="sheet-title">Filtrar por tarjeta</h2>
+            <div class="sheet-list">
+                <button class="sheet-item" (click)="clearTarjeta(); showTarjetaSheet = false">
+                    <div class="sheet-icon all-icon"><ion-icon name="albums-outline"></ion-icon></div>
+                    <span class="sheet-label">Todas las tarjetas</span>
+                    <ion-icon name="checkmark" class="sheet-check" *ngIf="!activeTarjetaFilter"></ion-icon>
+                </button>
+                <button class="sheet-item" *ngFor="let t of tarjetas" (click)="selectTarjeta(t)">
+                    <div class="sheet-icon card-icon"><ion-icon name="card-outline"></ion-icon></div>
+                    <div class="sheet-item-text">
+                        <span class="sheet-label">{{ t.nombreTarjeta }}</span>
+                        <span class="sheet-sublabel">{{ t.banco.nombre }} • {{ t.numeroTarjeta.slice(-4) }}</span>
+                    </div>
+                    <ion-icon name="checkmark" class="sheet-check" *ngIf="activeTarjetaFilter?.id === t.id"></ion-icon>
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</ion-modal>
+
+<!-- Categoria Sheet -->
+<ion-modal [isOpen]="showCategoriaSheet" (didDismiss)="showCategoriaSheet = false" class="sheet-modal">
+    <ng-template>
+        <div class="sheet-wrapper">
+            <div class="sheet-handle"></div>
+            <h2 class="sheet-title">Filtrar por categoría</h2>
+            <div class="sheet-list-scroll">
+                <div class="sheet-list">
+                    <button class="sheet-item" (click)="clearCategoria(); showCategoriaSheet = false">
+                        <div class="sheet-icon all-icon"><ion-icon name="grid-outline"></ion-icon></div>
+                        <span class="sheet-label">Todas las categorías</span>
+                        <ion-icon name="checkmark" class="sheet-check" *ngIf="!activeCategoriaFilter"></ion-icon>
+                    </button>
+                    <button class="sheet-item" *ngFor="let c of categorias" (click)="selectCategoria(c)">
+                        <div class="sheet-icon cat-dot" [style.background]="c.color_hex + '28'"
+                            [style.border-color]="c.color_hex + '55'">
+                            <ion-icon [name]="c.icono" [style.color]="c.color_hex"></ion-icon>
+                        </div>
+                        <span class="sheet-label">{{ c.nombre }}</span>
+                        <ion-icon name="checkmark" class="sheet-check"
+                            *ngIf="activeCategoriaFilter?.id === c.id"></ion-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</ion-modal>
+
+<!-- Main Page -->
+<ion-header class="list-header ion-no-border">
+    <ion-toolbar class="list-toolbar">
+        <ion-title class="list-title">Movimientos</ion-title>
+        <ion-buttons slot="end">
+            <ion-button class="notif-btn">
+                <ion-icon slot="icon-only" name="notifications-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <!-- Filter Chips Row -->
+    <div class="filters-row">
+        <!-- Fecha chip -->
+        <button class="filter-chip" [class.active]="activeDateFilter" (click)="showFechaModal = true">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ activeDateFilter || 'Fecha' }}</span>
+            <ion-icon name="close-circle" class="clear-icon" *ngIf="activeDateFilter"
+                (click)="$event.stopPropagation(); clearFecha()"></ion-icon>
+        </button>
+
+        <!-- Tarjeta chip -->
+        <button class="filter-chip" [class.active]="activeTarjetaFilter" (click)="showTarjetaSheet = true">
+            <ion-icon name="card-outline"></ion-icon>
+            <span>{{ activeTarjetaFilter ? activeTarjetaFilter.nombreTarjeta.split(' ')[0] : 'Tarjeta' }}</span>
+            <ion-icon name="close-circle" class="clear-icon" *ngIf="activeTarjetaFilter"
+                (click)="$event.stopPropagation(); clearTarjeta()"></ion-icon>
+        </button>
+
+        <!-- Categoria chip -->
+        <button class="filter-chip" [class.active]="activeCategoriaFilter" (click)="showCategoriaSheet = true">
+            <ion-icon name="pricetag-outline"></ion-icon>
+            <span>{{ activeCategoriaFilter ? activeCategoriaFilter.nombre : 'Categoría' }}</span>
+            <ion-icon name="close-circle" class="clear-icon" *ngIf="activeCategoriaFilter"
+                (click)="$event.stopPropagation(); clearCategoria()"></ion-icon>
+        </button>
+
+        <!-- Clear all -->
+        <button class="filter-chip clear-all" *ngIf="hasActiveFilters" (click)="clearAll()">
+            <ion-icon name="close"></ion-icon>
+        </button>
     </div>
+
+    <!-- Results bar removed -->
+</ion-header>
+
+<ion-content class="list-content">
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="loading">
+        <div class="skeleton-section">
+            <div class="skeleton-date-label"></div>
+            <div class="skeleton-item" *ngFor="let i of [1,2,3]"></div>
+        </div>
+        <div class="skeleton-section">
+            <div class="skeleton-date-label"></div>
+            <div class="skeleton-item" *ngFor="let i of [1,2]"></div>
+        </div>
+    </ng-container>
+
+    <!-- Grouped list -->
+    <ng-container *ngIf="!loading">
+        <div *ngFor="let group of gastoGroups" class="date-group">
+            <div class="date-group-header">
+                <span class="date-group-label">{{ group.label }}</span>
+                <span class="date-group-total">${{ group.gastos | sumMonto }}</span>
+            </div>
+            <div class="group-items">
+                <app-transaction-item *ngFor="let g of group.gastos; let last = last"
+                    [gasto]="buildGastoForComponent(g)" [isLast]="last">
+                </app-transaction-item>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <app-empty-state *ngIf="gastoGroups.length === 0" message="No hay gastos para los filtros aplicados"
+            icon="wallet-outline">
+        </app-empty-state>
+    </ng-container>
+
+    <!-- Infinite Scroll -->
+    <ion-infinite-scroll (ionInfinite)="loadMore($event)" threshold="200px">
+        <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
 </ion-content>
+
+<!-- FAB -->
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/app/gastos/nuevo" class="fab-add">
+        <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+</ion-fab>

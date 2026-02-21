@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { ENDPOINTS } from '../../../core/constants/endpoints';
 import { PaginatedResponse } from '../../../core/models/api-response.model';
-import { Gasto, CreateGastoDto, UpdateGastoDto, GastosFiltro } from '../models/gasto.model';
+import { Gasto, CreateGastoRequest, UpdateGastoDto, GastosFiltro, GastoListadoFiltro, GastosListadoResponse } from '../models/gasto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,15 +11,17 @@ import { Gasto, CreateGastoDto, UpdateGastoDto, GastosFiltro } from '../models/g
 export class GastosService {
   constructor(private api: ApiService) {}
 
-  getGastosPaginados(filtros: GastosFiltro): Observable<PaginatedResponse<Gasto>> {
-    return this.api.get<PaginatedResponse<Gasto>>(ENDPOINTS.gastos.paginated, filtersToParams(filtros));
+  getGastosPaginados(filtros: GastoListadoFiltro): Observable<GastosListadoResponse> {
+    return this.api.get<GastosListadoResponse>(ENDPOINTS.gastos.base, filtersToParams(filtros));
   }
+
+
 
   getGastoById(id: number): Observable<Gasto> {
     return this.api.get<Gasto>(ENDPOINTS.gastos.byId.replace(':id', id.toString()));
   }
 
-  createGasto(dto: CreateGastoDto): Observable<Gasto> {
+  createGasto(dto: CreateGastoRequest): Observable<Gasto> {
     return this.api.post<Gasto>(ENDPOINTS.gastos.base, dto);
   }
 
@@ -32,7 +34,12 @@ export class GastosService {
   }
 }
 
-function filtersToParams(filtros: GastosFiltro): any {
-  // Helper to convert filters object to query params object if needed
-  return { ...filtros };
+function filtersToParams(filtros: any): any {
+  const params: any = {};
+  Object.keys(filtros).forEach(key => {
+    if (filtros[key] !== undefined && filtros[key] !== null && filtros[key] !== '') {
+      params[key] = filtros[key];
+    }
+  });
+  return params;
 }

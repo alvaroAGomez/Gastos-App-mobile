@@ -1,0 +1,21 @@
+<div class="tx-item" [class.no-border]="isLast">
+    <!-- Category icon bubble -->
+    <div class="tx-icon" [style.background]="gasto.categoria.color_hex + '22'"
+        [style.border-color]="gasto.categoria.color_hex + '44'">
+        <ion-icon [name]="gasto.categoria.icono" [style.color]="gasto.categoria.color_hex"></ion-icon>
+    </div>
+
+    <!-- Info -->
+    <div class="tx-info">
+        <div class="tx-top">
+            <span class="tx-desc">{{ gasto.descripcion }}</span>
+            <span class="tx-amount">{{ gasto.monto | currency:'$':'symbol':'1.0-0' }}</span>
+        </div>
+        <div class="tx-bottom">
+            <span class="tx-cat">{{ gasto.categoria.nombre }}</span>
+            <span *ngIf="gasto.totalCuotas" class="tx-cuota">Cuota {{ gasto.cuotaActual }}/{{ gasto.totalCuotas
+                }}</span>
+            <span class="tx-date">{{ gasto.fecha | date:'MMM d, yyyy' }}</span>
+        </div>
+    </div>
+</div>

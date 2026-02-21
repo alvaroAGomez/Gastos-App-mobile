@@ -1,1 +1,127 @@
-// styles
+ion-header.cat-header {
+  ion-toolbar.cat-toolbar {
+    --background: #0f0f1a;
+    --border-width: 0;
+    padding: 8px 4px 0;
+  }
+}
+
+ion-content.cat-content { --background: #0f0f1a; }
+
+ion-footer.cat-footer {
+  --background: transparent;
+  background: linear-gradient(to top, #0f0f1a 80%, transparent);
+  padding: 12px 20px 32px;
+}
+
+.cancel-btn { --color: rgba(255,255,255,0.45); font-size: 15px; }
+.cat-title { color: white !important; font-weight: 700; font-size: 17px; }
+.more-btn { --color: rgba(255,255,255,0.45); }
+
+/* ── Body ───────────────────────────────────── */
+.cat-body { padding: 6px 20px 24px; }
+
+/* ── Icon Preview ───────────────────────────── */
+.preview-section {
+  display: flex; justify-content: center;
+  margin: 16px 0 32px;
+  position: relative;
+  width: fit-content;
+  margin-left: auto; margin-right: auto;
+}
+.icon-preview {
+  width: 90px; height: 90px;
+  border-radius: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid;
+  transition: background 0.2s, border-color 0.2s;
+  ion-icon { font-size: 44px; transition: color 0.2s; }
+}
+.edit-badge {
+  position: absolute; bottom: -4px; right: -4px;
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid #0f0f1a;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  ion-icon { font-size: 12px; color: white; }
+}
+
+/* ── Field groups ───────────────────────────── */
+.field-group { margin-bottom: 28px; }
+.field-label {
+  font-size: 10px; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.32); font-weight: 700;
+  display: block; margin-bottom: 12px;
+}
+
+/* ── Text field ─────────────────────────────── */
+.text-field {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 14px 18px;
+  ion-icon { font-size: 18px; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+}
+.text-input {
+  background: none; border: none; outline: none;
+  color: white; font-size: 16px; width: 100%;
+  &::placeholder { color: rgba(255,255,255,0.25); }
+}
+
+/* ── Icon Grid ──────────────────────────────── */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.icon-opt {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid transparent;
+  transition: all 0.15s ease;
+  ion-icon { font-size: 22px; }
+  &.selected { transform: scale(1.08); }
+  &:active { transform: scale(0.92); }
+}
+
+/* ── Color Row ──────────────────────────────── */
+.color-row {
+  display: flex; gap: 10px;
+  flex-wrap: wrap;
+}
+.color-opt {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s;
+  position: relative;
+  ion-icon { font-size: 18px; color: white; }
+  &.selected {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+  }
+  &:active { transform: scale(0.9); }
+}
+
+/* ── Create button ──────────────────────────── */
+.crear-btn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #052e16;
+  font-size: 17px; font-weight: 800;
+  padding: 18px 24px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(16,185,129,0.35);
+  transition: all 0.15s ease;
+  ion-icon { font-size: 20px; }
+  &:active { transform: scale(0.97); }
+  &.disabled {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.25);
+    box-shadow: none;
+  }
+}

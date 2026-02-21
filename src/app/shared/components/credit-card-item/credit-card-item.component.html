@@ -1,0 +1,44 @@
+<div class="card-wrapper">
+    <!-- Card background with gradient based on bank -->
+    <div class="card-body">
+        <!-- Top shimmer decoration -->
+        <div class="card-shimmer"></div>
+        <div class="card-shimmer-2"></div>
+
+        <!-- Bank & Card Type -->
+        <div class="flex justify-between items-start mb-5">
+            <div>
+                <p class="bank-label">{{ tarjeta.banco | uppercase }}</p>
+                <h3 class="card-name">{{ tarjeta.nombreTarjeta }}</h3>
+            </div>
+            <!-- Card chip -->
+            <div class="chip">
+                <div class="chip-inner"></div>
+            </div>
+        </div>
+
+        <!-- Card Number (dots + last 4) -->
+        <div class="flex items-center gap-3 mb-5">
+            <div class="flex gap-1">
+                <span class="dot" *ngFor="let d of [1,2,3,4]"></span>
+            </div>
+            <span class="card-number">{{ tarjeta.ultimos4 }}</span>
+        </div>
+
+        <!-- Bottom: Disp / Cierre / Progress -->
+        <div>
+            <div class="flex justify-between mb-2">
+                <span class="info-label">Disp: {{ tarjeta.limiteDisponible | currency:'$':'symbol':'1.0-0' }}</span>
+                <span class="info-label" *ngIf="tarjeta.fechaCierre">Cierre: {{ tarjeta.fechaCierre }}</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" [style.width.%]="tarjeta.porcentajeUso"></div>
+            </div>
+            <div class="flex justify-between mt-2">
+                <span class="limit-label">Límite</span>
+                <span class="limit-values">{{ tarjeta.gastosEsteMes | currency:'$':'symbol':'1.0-0' }} / {{
+                    tarjeta.limiteTotal | currency:'$':'symbol':'1.0-0' }}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,174 @@
-<app-header [title]="isEditMode ? 'Editar Gasto' : 'Nuevo Gasto'" [showBackButton]="true"></app-header>
-<ion-content class="ion-padding">
-    <p>Formulario de gastos (Pendiente)</p>
+<!-- Fecha modal -->
+<ion-modal #fechaModal class="fecha-modal">
+    <ng-template>
+        <div class="fecha-modal-wrapper">
+            <div class="modal-header">
+                <h2 class="modal-title">Fecha de compra</h2>
+                <button class="modal-close-btn" (click)="fechaModal.dismiss()">
+                    <ion-icon name="close"></ion-icon>
+                </button>
+            </div>
+            <ion-datetime presentation="date" [max]="hoy" [value]="fechaCompra" (ionChange)="onFechaChange($event)"
+                locale="es-AR" class="fecha-picker">
+            </ion-datetime>
+            <div class="modal-footer">
+                <button class="modal-confirm-btn" (click)="fechaModal.dismiss()">Confirmar</button>
+            </div>
+        </div>
+    </ng-template>
+</ion-modal>
+
+<!-- Category Selector Modal -->
+<ion-modal #categoriaModal class="cat-modal">
+    <ng-template>
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <button class="modal-back-btn" (click)="categoriaModal.dismiss()">
+                    <ion-icon name="arrow-back"></ion-icon>
+                </button>
+                <h2 class="modal-title">Seleccionar Categoría</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="cat-search-wrap">
+                <div class="cat-search-box">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="text" [(ngModel)]="categoriaSearch" placeholder="Buscar categoría..."
+                        class="cat-search-input">
+                </div>
+            </div>
+            <ion-content class="cat-modal-content">
+                <div class="cat-grid">
+                    <button class="cat-item" *ngFor="let cat of categoriasFiltradas" (click)="selectCategoria(cat)">
+                        <div class="cat-icon-wrap"
+                            [style.background]="selectedCategoria?.id === cat.id ? cat.color_hex : cat.color_hex + '22'"
+                            [style.border-color]="cat.color_hex + '66'">
+                            <ion-icon [name]="cat.icono"
+                                [style.color]="selectedCategoria?.id === cat.id ? '#fff' : cat.color_hex">
+                            </ion-icon>
+                        </div>
+                        <span class="cat-label">{{ cat.nombre }}</span>
+                    </button>
+                </div>
+            </ion-content>
+            <div class="modal-footer">
+                <button class="nueva-cat-btn" (click)="goToNuevaCategoria()">
+                    <ion-icon name="add-circle"></ion-icon>
+                    Nueva categoría
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</ion-modal>
+
+<!-- Header -->
+<ion-header class="form-header ion-no-border">
+    <ion-toolbar class="form-toolbar">
+        <ion-buttons slot="start">
+            <ion-button class="cancel-btn" (click)="cancelar()">Cancelar</ion-button>
+        </ion-buttons>
+        <ion-title class="form-title">Nuevo Gasto</ion-title>
+        <ion-buttons slot="end">
+            <ion-button fill="clear" class="more-btn">
+                <ion-icon slot="icon-only" name="ellipsis-horizontal"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="form-content">
+    <div class="form-body">
+
+        <!-- Amount Section — native keyboard via input -->
+        <div class="amount-section">
+            <p class="amount-label">MONTO TOTAL</p>
+            <div class="amount-row">
+                <span class="amount-currency">$</span>
+                <input type="text" inputmode="decimal" [value]="montoDisplay" (input)="onMontoInput($event)"
+                    placeholder="0" class="amount-input" [style.fontSize]="montoFontSize">
+            </div>
+        </div>
+
+        <!-- Descripcion + Fecha -->
+        <div class="desc-fecha-row">
+            <div class="desc-pill" [class.has-value]="descripcion">
+                <ion-icon name="pencil-outline"></ion-icon>
+                <input type="text" [(ngModel)]="descripcion" placeholder="Descripción" class="desc-input">
+            </div>
+            <button class="fecha-pill" (click)="fechaModal.present()">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ fechaDisplay }}</span>
+            </button>
+        </div>
+
+        <!-- Tarjeta Selector -->
+        <div class="field-section">
+            <p class="field-label">Método de Pago</p>
+            <div class="tarjetas-row">
+                <button class="tarjeta-chip" *ngFor="let t of tarjetas" [class.selected]="selectedTarjetaId === t.id"
+                    (click)="selectedTarjetaId = t.id">
+                    <ion-icon name="card-outline"></ion-icon>
+                    <span>{{ t.nombreTarjeta.split(' ')[0] }} • {{ t.numeroTarjeta.slice(-4) }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tipo Tabs (3 opciones, sin Auto-Debit) -->
+        <div class="tipo-tabs">
+            <button class="tipo-tab" [class.active]="tipo === 1" (click)="setTipo(1)">Normal</button>
+            <button class="tipo-tab" [class.active]="tipo === 2" (click)="setTipo(2)">Cuotas</button>
+            <button class="tipo-tab" [class.active]="tipo === 3" (click)="setTipo(3)">Recurrente</button>
+        </div>
+
+        <!-- Cuotas Selector (solo tipo 2) -->
+        <div class="cuotas-section" *ngIf="tipo === 2">
+            <div class="cuotas-header">
+                <p class="field-label">Cuotas</p>
+                <span class="cuotas-monthly" *ngIf="montoNumero > 0">
+                    Mensual: <strong>{{ cuotasMensual | currency:'$':'symbol':'1.0-0' }}</strong>
+                </span>
+            </div>
+            <div class="cuotas-control">
+                <input type="number" inputmode="numeric" [value]="cuotasTexto" (change)="onCuotasInput($event)" min="1"
+                    max="100" class="cuotas-input">
+            </div>
+            <p class="cuotas-info" *ngIf="tarjetaSeleccionada">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                Impacta según cierre {{ tarjetaSeleccionada.diaCierre }}/{{ tarjetaSeleccionada.diaVencimiento }}
+            </p>
+        </div>
+
+        <!-- Categoria (quick row + más) -->
+        <div class="field-section">
+            <p class="field-label">Categoría</p>
+            <div class="categorias-row">
+                <button class="cat-quick" *ngFor="let cat of categorias.slice(0, 5)"
+                    [class.selected]="selectedCategoria?.id === cat.id" (click)="selectedCategoria = cat">
+                    <div class="cat-quick-icon"
+                        [style.background]="selectedCategoria?.id === cat.id ? cat.color_hex : cat.color_hex + '28'"
+                        [style.border-color]="cat.color_hex + '66'">
+                        <ion-icon [name]="cat.icono"
+                            [style.color]="selectedCategoria?.id === cat.id ? '#ffffff' : cat.color_hex">
+                        </ion-icon>
+                    </div>
+                    <span class="cat-quick-label">{{ cat.nombre }}</span>
+                </button>
+                <button class="cat-quick" (click)="openCategoryModal()">
+                    <div class="cat-quick-icon cat-more-icon">
+                        <ion-icon name="grid-outline"></ion-icon>
+                    </div>
+                    <span class="cat-quick-label">Más</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
 </ion-content>
+
+<!-- Save Button -->
+<ion-footer class="form-footer ion-no-border">
+    <button class="save-btn" [class.disabled]="!montoNumero || !selectedTarjetaId || !selectedCategoria || !descripcion"
+        (click)="guardarGasto()">
+        <span>Guardar Gasto</span>
+        <ion-icon name="checkmark"></ion-icon>
+    </button>
+</ion-footer>

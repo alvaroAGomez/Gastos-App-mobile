@@ -1,35 +1,66 @@
-<app-header title="Mis Tarjetas" [showBackButton]="false"></app-header>
-<ion-content>
-    <ion-segment [value]="segment" (ionChange)="segmentChanged($event)" class="ion-margin-bottom">
-        <ion-segment-button value="credito">
-            <ion-label>Crédito</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="debito">
-            <ion-label>Débito</ion-label>
-        </ion-segment-button>
-    </ion-segment>
-
-    <div class="tarjetas-container">
-        <div *ngIf="segment === 'credito'">
-            <!-- Lista Crédito -->
-            <app-empty-state message="No hay tarjetas de crédito"></app-empty-state>
-
-            <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-                <ion-fab-button routerLink="/app/tarjetas/credito/nueva">
-                    <ion-icon name="add"></ion-icon>
-                </ion-fab-button>
-            </ion-fab>
-        </div>
-
-        <div *ngIf="segment === 'debito'">
-            <!-- Lista Débito -->
-            <app-empty-state message="No hay tarjetas de débito"></app-empty-state>
-
-            <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-                <ion-fab-button routerLink="/app/tarjetas/debito/nueva">
-                    <ion-icon name="add"></ion-icon>
-                </ion-fab-button>
-            </ion-fab>
-        </div>
+<ion-header class="ion-no-border premium-header">
+    <ion-toolbar mode="ios">
+        <ion-title mode="ios">Mis Tarjetas</ion-title>
+        <ion-buttons slot="end">
+            <ion-button class="config-btn">
+                <ion-icon name="settings-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <div class="header-subtitle-cont">
+        <p class="subtitle">Gestión de productos</p>
     </div>
+
+    <div class="tabs-container">
+        <ion-segment [value]="segment" (ionChange)="segmentChanged($event)" mode="ios" class="premium-segment">
+            <ion-segment-button value="credito">
+                <ion-label>Crédito</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="debito">
+                <ion-label>Débito</ion-label>
+            </ion-segment-button>
+        </ion-segment>
+    </div>
+</ion-header>
+
+<ion-content class="tarjetas-content">
+    <div class="tarjetas-container">
+        <!-- Deuda Total Card (Only for Credit) -->
+        <div class="summary-card" *ngIf="segment === 'credito' && !loading">
+            <div class="summary-info">
+                <span class="summary-label">DEUDA TOTAL</span>
+                <h2 class="summary-amount">{{ deudaTotal | currency:'$':'symbol':'1.0-0' }}</h2>
+            </div>
+            <div class="summary-icon">
+                <ion-icon name="trending-up-outline"></ion-icon>
+            </div>
+        </div>
+
+        <!-- Credit list -->
+        <div class="cards-list" *ngIf="segment === 'credito' && !loading && tarjetasCredito.length > 0">
+            <app-credit-card-item *ngFor="let t of tarjetasCredito" [tarjeta]="mapToDashboardCard(t)"
+                (click)="goToDetail(t.id)" class="full-width-card">
+            </app-credit-card-item>
+        </div>
+
+        <!-- Debit list -->
+        <div class="cards-list" *ngIf="segment === 'debito' && !loading && tarjetasDebito.length > 0">
+            <app-credit-card-item *ngFor="let t of tarjetasDebito" [tarjeta]="mapToDashboardCard(t)"
+                class="full-width-card">
+            </app-credit-card-item>
+        </div>
+
+        <!-- Empty States -->
+        <app-empty-state *ngIf="!loading && segment === 'credito' && tarjetasCredito.length === 0"
+            message="No hay tarjetas de crédito"></app-empty-state>
+        <app-empty-state *ngIf="!loading && segment === 'debito' && tarjetasDebito.length === 0"
+            message="No hay tarjetas de débito"></app-empty-state>
+    </div>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button class="main-fab"
+            [routerLink]="segment === 'credito' ? '/app/tarjetas/credito/nueva' : '/app/tarjetas/debito/nueva'">
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 </ion-content>

@@ -1,49 +1,76 @@
-<app-header title="Dashboard" [showBackButton]="false"></app-header>
+<ion-content [fullscreen]="true">
+    <div class="dash-bg">
+        <div class="content-wrapper">
 
-<ion-content class="ion-padding">
-    <div class="dashboard-container">
-        <!-- Resumen del mes -->
-        <ion-card>
-            <ion-card-header>
-                <ion-card-title>Resumen del Mes</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-                <h2>${{ totalGastosMes | number:'1.2-2' }}</h2>
-                <p>Total gastado este mes</p>
-            </ion-card-content>
-        </ion-card>
+            <!-- Header -->
+            <header class="dash-header">
+                <div>
+                    <p class="welcome-label">Bienvenido de nuevo</p>
+                    <h1 class="user-title">Hola, {{ userName }}</h1>
+                </div>
+                <div class="avatar-wrap">
+                    <div class="avatar">
+                        <img src="https://i.pravatar.cc/150?u=alvaro" alt="Profile">
+                    </div>
+                    <span class="avatar-dot"></span>
+                </div>
+            </header>
 
-        <!-- Accesos rápidos -->
-        <div class="quick-actions">
-            <ion-button routerLink="/app/gastos/nuevo" expand="block">
-                <ion-icon slot="start" name="add-circle"></ion-icon>
-                Nuevo Gasto
-            </ion-button>
-            <ion-button routerLink="/app/reportes" expand="block" fill="outline">
-                <ion-icon slot="start" name="bar-chart"></ion-icon>
-                Ver Reportes
-            </ion-button>
+            <!-- Gastado este mes card -->
+            <div class="section-block gastos-card">
+                <div class="glow-orb"></div>
+                <p class="stat-label">GASTADO ESTE MES</p>
+                <h2 class="stat-amount">${{ summary.gastosEsteMes | number:'1.0-0' }},00</h2>
+                <div class="trend-pill">
+                    <ion-icon name="trending-up"></ion-icon>
+                    <span>+12% vs mes pasado</span>
+                </div>
+            </div>
+
+            <!-- Cuotas pendientes -->
+            <div class="section-block cuotas-card">
+                <div class="cuotas-icon-wrap">
+                    <ion-icon name="albums-outline"></ion-icon>
+                </div>
+                <div class="cuotas-text">
+                    <p class="cuotas-label">Cuotas pendientes</p>
+                    <p class="cuotas-amount">$128.400 <span class="cuotas-count">• 6 cuotas</span></p>
+                </div>
+                <div class="cuotas-arrow">
+                    <ion-icon name="chevron-forward"></ion-icon>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="section-block actions-row">
+                <app-action-button label="Agregar gasto" icon="add" color="primary" routerLink="/app/gastos/nuevo">
+                </app-action-button>
+                <app-action-button label="Ver cuotas" icon="layers-outline" color="secondary" routerLink="/app/cuotas">
+                </app-action-button>
+            </div>
+
+            <!-- Mis Tarjetas -->
+            <section class="section-gap">
+                <div class="section-header">
+                    <h2 class="section-title">Mis Tarjetas</h2>
+                    <button class="ver-todas-btn" routerLink="/app/tarjetas">VER TODAS</button>
+                </div>
+                <div class="cards-scroll">
+                    <app-credit-card-item *ngFor="let card of tarjetas" [tarjeta]="card"></app-credit-card-item>
+                </div>
+            </section>
+
+            <!-- Gastos actuales -->
+            <section class="section-gap">
+                <div class="section-header">
+                    <h2 class="section-title">Gastos actuales</h2>
+                </div>
+                <div class="gastos-list">
+                    <app-transaction-item *ngFor="let gasto of gastos; let last = last" [gasto]="gasto" [isLast]="last">
+                    </app-transaction-item>
+                </div>
+            </section>
+
         </div>
-
-        <!-- Últimas transacciones -->
-        <ion-card>
-            <ion-card-header>
-                <ion-card-title>Últimas Transacciones</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-                <ion-list *ngIf="ultimasTransacciones.length > 0; else emptyState">
-                    <ion-item *ngFor="let transaccion of ultimasTransacciones">
-                        <ion-label>
-                            <h3>{{ transaccion.descripcion }}</h3>
-                            <p>{{ transaccion.fecha | date:'short' }}</p>
-                        </ion-label>
-                        <ion-note slot="end">${{ transaccion.monto }}</ion-note>
-                    </ion-item>
-                </ion-list>
-                <ng-template #emptyState>
-                    <app-empty-state message="No hay transacciones recientes"></app-empty-state>
-                </ng-template>
-            </ion-card-content>
-        </ion-card>
     </div>
 </ion-content>

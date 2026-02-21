@@ -1,0 +1,7 @@
+.stat-card {
+  &.primary {
+    .text-4xl {
+        text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+    }
+  }
+}

@@ -1,4 +1,72 @@
-<app-header [title]="isEditMode ? 'Editar Categoría' : 'Nueva Categoría'" [showBackButton]="true"></app-header>
-<ion-content class="ion-padding">
-    <p>Formulario Categoría (Pendiente)</p>
+<ion-header class="cat-header ion-no-border">
+    <ion-toolbar class="cat-toolbar">
+        <ion-buttons slot="start">
+            <ion-button class="cancel-btn" (click)="cancelar()">Cancelar</ion-button>
+        </ion-buttons>
+        <ion-title class="cat-title">{{ isEditMode ? 'Editar Categoría' : 'Nueva Categoría' }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button fill="clear" class="more-btn">
+                <ion-icon slot="icon-only" name="ellipsis-horizontal"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="cat-content">
+    <div class="cat-body">
+
+        <!-- Icon Preview -->
+        <div class="preview-section">
+            <div class="icon-preview" [style.background]="selectedColor + '22'"
+                [style.border-color]="selectedColor + '55'">
+                <ion-icon [name]="selectedIcon" [style.color]="selectedColor"></ion-icon>
+            </div>
+            <div class="edit-badge">
+                <ion-icon name="pencil"></ion-icon>
+            </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="field-group">
+            <label class="field-label">NOMBRE DE LA CATEGORÍA</label>
+            <div class="text-field">
+                <ion-icon name="pricetag-outline"></ion-icon>
+                <input type="text" [(ngModel)]="nombre" placeholder="Ej. Suscripciones" class="text-input">
+            </div>
+        </div>
+
+        <!-- Icon Picker -->
+        <div class="field-group">
+            <label class="field-label">ELEGIR ICONO</label>
+            <div class="icon-grid">
+                <button class="icon-opt" *ngFor="let ic of iconos" [class.selected]="selectedIcon === ic.name"
+                    (click)="selectedIcon = ic.name"
+                    [style.border-color]="selectedIcon === ic.name ? selectedColor + '88' : 'transparent'"
+                    [style.background]="selectedIcon === ic.name ? selectedColor + '22' : 'rgba(255,255,255,0.05)'">
+                    <ion-icon [name]="ic.name"
+                        [style.color]="selectedIcon === ic.name ? selectedColor : 'rgba(255,255,255,0.5)'"></ion-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Color Picker -->
+        <div class="field-group">
+            <label class="field-label">COLOR DE ACENTO</label>
+            <div class="color-row">
+                <button class="color-opt" *ngFor="let c of colores" [style.background]="c"
+                    [class.selected]="selectedColor === c" (click)="selectedColor = c">
+                    <ion-icon name="checkmark" *ngIf="selectedColor === c"></ion-icon>
+                </button>
+            </div>
+        </div>
+
+    </div>
 </ion-content>
+
+<!-- Create Button -->
+<ion-footer class="cat-footer ion-no-border">
+    <button class="crear-btn" [class.disabled]="!nombre.trim()" (click)="crear()">
+        <span>{{ isEditMode ? 'Guardar Cambios' : 'Crear Categoría' }}</span>
+        <ion-icon name="checkmark"></ion-icon>
+    </button>
+</ion-footer>

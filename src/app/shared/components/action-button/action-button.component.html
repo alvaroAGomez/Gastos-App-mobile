@@ -1,0 +1,5 @@
+<button class="action-btn w-full" [class.primary]="color === 'primary'" [class.secondary]="color === 'secondary'"
+    [routerLink]="routerLink">
+    <ion-icon [name]="icon"></ion-icon>
+    <span>{{ label }}</span>
+</button>
