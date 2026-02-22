@@ -1,0 +1,87 @@
+<ion-header class="ion-no-border premium-header">
+    <ion-toolbar mode="ios">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/app/tarjetas" text="" mode="ios"></ion-back-button>
+        </ion-buttons>
+        <ion-title mode="ios">Cuotas Pendientes</ion-title>
+        <ion-buttons slot="end">
+            <ion-button class="config-btn">
+                <ion-icon name="ellipsis-horizontal"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="cuotas-content">
+    <div class="cuotas-container" *ngIf="reporte && !loading">
+
+        <!-- Hero Metrics Dashboard -->
+        <div class="metrics-card">
+            <div class="hero-section">
+                <span class="label">TOTAL PENDIENTE</span>
+                <h2 class="amount">{{ reporte.totalPendiente | currency:'$':'symbol':'1.0-2' }}</h2>
+                <div class="next-due">
+                    <span class="status-dot"></span>
+                    Próximo vencimiento: {{ reporte.proximoVencimiento }}
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="s-label">Pagado este mes</span>
+                    <span class="s-value success">{{ reporte.pagadoEsteMes | currency:'$':'symbol':'1.0-2' }}</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="s-label">Cuotas restantes</span>
+                    <span class="s-value">{{ reporte.cuotasRestantesTotales }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Section -->
+        <div class="card-info-row">
+            <div class="c-icon">
+                <ion-icon name="card"></ion-icon>
+            </div>
+            <div class="c-text">
+                <h3>Visa Infinite</h3>
+                <p>•••• 1234 <span>CLP</span></p>
+            </div>
+        </div>
+
+        <div class="cuotas-list">
+            <div class="cuota-item" *ngFor="let c of reporte.cuotasPendientes">
+                <div class="item-main">
+                    <div class="icon-wrap" [style.background-color]="c.categoria.color_hex + '15'">
+                        <ion-icon [name]="c.categoria.icono" [style.color]="c.categoria.color_hex"></ion-icon>
+                    </div>
+
+                    <div class="item-content">
+                        <div class="top-row">
+                            <span class="name">{{ c.nombreGasto }}</span>
+                            <span class="price">{{ c.montoCuota | currency:'$':'symbol':'1.0-0' }}</span>
+                        </div>
+
+                        <div class="bottom-row">
+                            <div class="progress-info">
+                                <span class="badge info">Quedan {{ c.cuotasFaltantes }} cuotas de {{ c.totalCuotas
+                                    }}</span>
+                                <span class="saldo">Saldo: {{ getSaldoRestante(c) | currency:'$':'symbol':'1.0-0'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-full" *ngIf="loading">
+        <ion-spinner name="crescent" color="emerald"></ion-spinner>
+    </div>
+</ion-content>

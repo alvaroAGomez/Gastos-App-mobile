@@ -1,9 +1,7 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-
-// Registrar elementos de Chart.js
-Chart.register(...registerables);
+import { BaseGraficoDto } from '../../../features/reportes/models/reportes.models';
 
 @Component({
   selector: 'app-expense-charts',
@@ -11,14 +9,14 @@ Chart.register(...registerables);
   styleUrls: ['./expense-charts.component.scss'],
   standalone: false,
 })
-export class ExpenseChartsComponent implements OnInit {
+export class ExpenseChartsComponent implements OnChanges {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   @Input() chartType: ChartType = 'bar';
+  @Input() data?: BaseGraficoDto;
   @Input() labels: string[] = [];
   @Input() datasets: number[] = [];
-  @Input() title?: string;
-  @Input() showLegend: boolean = true;
+  @Input() loading: boolean = false;
 
   public chartData: ChartConfiguration['data'] = {
     labels: [],
@@ -27,94 +25,65 @@ export class ExpenseChartsComponent implements OnInit {
 
   public chartOptions: ChartConfiguration['options'] = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: true
-      }
+      legend: { display: true, position: 'bottom' }
     }
   };
 
-  ngOnInit() {
-    this.updateChart();
-  }
-
-  ngOnChanges() {
-    this.updateChart();
+  ngOnChanges(changes: SimpleChanges) {
+    if ((changes['data'] || changes['labels'] || changes['datasets']) && (this.data || this.labels.length > 0)) {
+      this.updateChart();
+    }
   }
 
   updateChart() {
-    this.chartData = {
-      labels: this.labels,
-      datasets: [
-        {
-          label: this.title || 'Datos',
-          data: this.datasets,
-          backgroundColor: this.getBackgroundColors(),
-          borderColor: this.getBorderColors(),
-          borderWidth: 1
-        }
-      ]
-    };
+    // Priority: Structured Data DTO
+    if (this.data) {
+      this.chartData = {
+        labels: this.data.labels,
+        datasets: this.data.datasets.map(ds => ({
+          ...ds,
+          label: ds.label || ''
+        })) as any
+      };
 
-    this.chartOptions = {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          display: this.showLegend
-        },
-        title: {
-          display: !!this.title,
-          text: this.title || ''
-        }
+      if (this.data.chartOptions) {
+        this.chartOptions = {
+          ...this.chartOptions,
+          ...this.data.chartOptions
+        } as any;
       }
-    };
+    } 
+    // Fallback: Legacy Inputs
+    else if (this.labels.length > 0) {
+      this.chartData = {
+        labels: this.labels,
+        datasets: [
+          {
+            data: this.datasets,
+            backgroundColor: this.getAutoColors(),
+            borderWidth: 1
+          }
+        ]
+      };
+    }
 
     this.chart?.update();
   }
 
-  private getBackgroundColors(): string[] {
-    const colors = [
-      'rgba(255, 99, 132, 0.6)',
-      'rgba(54, 162, 235, 0.6)',
-      'rgba(255, 206, 86, 0.6)',
-      'rgba(75, 192, 192, 0.6)',
-      'rgba(153, 102, 255, 0.6)',
-      'rgba(255, 159, 64, 0.6)',
-      'rgba(199, 199, 199, 0.6)',
-      'rgba(83, 102, 255, 0.6)',
-      'rgba(255, 102, 146, 0.6)',
-      'rgba(102, 255, 178, 0.6)'
+  private getAutoColors(): string[] {
+    const defaultColors = [
+      'rgba(16, 185, 129, 0.6)', // Emerald
+      'rgba(59, 130, 246, 0.6)', // Blue
+      'rgba(139, 92, 246, 0.6)', // Purple
+      'rgba(245, 158, 11, 0.6)', // Amber
+      'rgba(239, 68, 68, 0.6)',  // Red
     ];
-
+    
     if (this.chartType === 'doughnut' || this.chartType === 'pie') {
-      return colors.slice(0, this.labels.length);
+      return this.labels.map((_, i) => defaultColors[i % defaultColors.length]);
     }
-    return [colors[0]];
-  }
-
-  private getBorderColors(): string[] {
-    const colors = [
-      'rgba(255, 99, 132, 1)',
-      'rgba(54, 162, 235, 1)',
-      'rgba(255, 206, 86, 1)',
-      'rgba(75, 192, 192, 1)',
-      'rgba(153, 102, 255, 1)',
-      'rgba(255, 159, 64, 1)',
-      'rgba(199, 199, 199, 1)',
-      'rgba(83, 102, 255, 1)',
-      'rgba(255, 102, 146, 1)',
-      'rgba(102, 255, 178, 1)'
-    ];
-
-    if (this.chartType === 'doughnut' || this.chartType === 'pie') {
-      return colors.slice(0, this.labels.length);
-    }
-    return [colors[0]];
-  }
-
-  refresh() {
-    this.updateChart();
+    return [defaultColors[0]];
   }
 }

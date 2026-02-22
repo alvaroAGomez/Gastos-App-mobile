@@ -1,19 +1,52 @@
-export interface ReporteSerieDto {
-  labels: string[];
+export interface DatasetDto {
+  label: string;
   data: number[];
+  backgroundColor?: string | string[];
+  borderColor?: string | string[];
+  borderWidth?: number;
+  borderRadius?: number | any;
+  fill?: boolean;
+  pointRadius?: number;
+  tension?: number;
 }
 
-export interface ReporteTotalesDto {
-  nombre: string;
-  total: number;
+export interface ChartOptionsDto {
+  responsive?: boolean;
+  maintainAspectRatio?: boolean;
+  plugins?: {
+    legend?: {
+      display?: boolean;
+      position?: 'top' | 'bottom' | 'left' | 'right';
+    };
+    title?: {
+      display?: boolean;
+      text?: string;
+    };
+  };
+  scales?: {
+    y?: {
+      beginAtZero?: boolean;
+    };
+  };
 }
 
-export interface ReporteResumenMensualDto {
-  mes: number;
-  total: number;
+export interface BaseGraficoDto {
+  labels: string[];
+  datasets: DatasetDto[];
+  chartOptions?: ChartOptionsDto;
 }
 
-export interface ReporteResumenAnualDto {
-  meses: { mes: number; total: number; }[];
-  totalAnual: number;
+export interface GraficoBarrasDto extends BaseGraficoDto {}
+export interface GraficoTortaDto extends BaseGraficoDto {}
+export interface GraficoLineaDto extends BaseGraficoDto {}
+
+export interface FiltroReportesDto {
+  anio?: number;
+  mes?: number;
+  tarjetaIds?: number[];
+  categoriaIds?: number[];
+  tipoGasto?: number; // 1: Normal, 2: Cuotas, 3: Recurrente, 4: Débito Automático
+  fechaDesde?: string;
+  fechaHasta?: string;
+  meses?: number;
 }

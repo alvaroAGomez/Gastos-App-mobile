@@ -1,81 +1,94 @@
-<div class="filtros-container">
-    <!-- Año -->
-    <ion-item *ngIf="showAnio">
-        <ion-label>Año</ion-label>
-        <ion-select [(ngModel)]="filtros.anio" (ionChange)="onFiltroChange()">
-            <ion-select-option *ngFor="let anio of anios" [value]="anio">{{ anio }}</ion-select-option>
-        </ion-select>
-    </ion-item>
+<div class="sheet-modal-container">
+    <div class="sheet-header">
+        <div class="sheet-handle"></div>
+        <div class="header-row">
+            <button class="btn-text" (click)="limpiarFiltros()">Limpiar</button>
+            <h2 class="sheet-title">Filtrar Reportes</h2>
+            <button class="btn-close" (click)="close.emit()">
+                <ion-icon name="close"></ion-icon>
+            </button>
+        </div>
+    </div>
 
-    <!-- Mes -->
-    <ion-item *ngIf="showMes">
-        <ion-label>Mes</ion-label>
-        <ion-select [(ngModel)]="filtros.mes" (ionChange)="onFiltroChange()">
-            <ion-select-option [value]="undefined">Todos</ion-select-option>
-            <ion-select-option *ngFor="let mes of meses" [value]="mes.value">{{ mes.label }}</ion-select-option>
-        </ion-select>
-    </ion-item>
+    <div class="sheet-content">
+        <!-- TARJETAS -->
+        <div class="filter-section">
+            <span class="section-label">TARJETAS</span>
+            <div class="horizontal-scroll chips-row">
+                <button class="pill-chip" [class.active]="!filtros.tarjetaIds || filtros.tarjetaIds.length === 0"
+                    (click)="selectTarjeta()">
+                    Todas
+                </button>
+                <button class="pill-chip" *ngFor="let t of tarjetas" [class.active]="filtros.tarjetaIds?.includes(t.id)"
+                    (click)="selectTarjeta(t.id)">
+                    {{ t.nombreTarjeta }}
+                </button>
+            </div>
+        </div>
 
-    <!-- Rango de fechas -->
-    <ng-container *ngIf="showRangoFechas">
-        <ion-item>
-            <ion-label>Desde</ion-label>
-            <ion-datetime-button datetime="datetime-desde"></ion-datetime-button>
-            <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                    <ion-datetime id="datetime-desde" [(ngModel)]="filtros.desde" (ionChange)="onFiltroChange()"
-                        display-format="DD/MM/YYYY">
-                    </ion-datetime>
-                </ng-template>
-            </ion-modal>
-        </ion-item>
+        <!-- RANGO DE FECHA -->
+        <div class="filter-section compact-date">
+            <div class="section-header-row">
+                <span class="section-label">RANGO DE FECHAS</span>
+                <div class="range-mini-preview" *ngIf="filtros.fechaDesde">
+                    {{ filtros.fechaDesde | date:'dd/MM' }} - {{ filtros.fechaHasta ? (filtros.fechaHasta |
+                    date:'dd/MM') : '...' }}
+                </div>
+            </div>
 
-        <ion-item>
-            <ion-label>Hasta</ion-label>
-            <ion-datetime-button datetime="datetime-hasta"></ion-datetime-button>
-            <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                    <ion-datetime id="datetime-hasta" [(ngModel)]="filtros.hasta" (ionChange)="onFiltroChange()"
-                        display-format="DD/MM/YYYY">
-                    </ion-datetime>
-                </ng-template>
-            </ion-modal>
-        </ion-item>
-    </ng-container>
+            <div class="calendar-compact-wrap">
+                <ion-datetime presentation="date" mode="md" size="cover" [value]="calendarValue"
+                    (ionChange)="setCalendarValue($event)" [max]="hoy" locale="es-AR"
+                    [highlightedDates]="highlightedDates" class="mini-datetime">
+                </ion-datetime>
+            </div>
 
-    <!-- Tarjeta -->
-    <ion-item *ngIf="showTarjeta">
-        <ion-label>Tarjeta</ion-label>
-        <ion-select [(ngModel)]="filtros.tarjetaId" (ionChange)="onFiltroChange()">
-            <ion-select-option [value]="undefined">Todas</ion-select-option>
-            <ion-select-option *ngFor="let tarjeta of tarjetas" [value]="tarjeta.id">{{ tarjeta.nombre
-                }}</ion-select-option>
-        </ion-select>
-    </ion-item>
+            <div class="range-pills">
+                <div class="p-pill" [class.active]="selectionState === 'start'">
+                    <span class="p-tag">DESDE</span>
+                    <span class="p-val">{{ filtros.fechaDesde ? (filtros.fechaDesde | date:'dd MMM') : '--/--' }}</span>
+                </div>
+                <div class="p-pill" [class.active]="selectionState === 'end'">
+                    <span class="p-tag">HASTA</span>
+                    <span class="p-val">{{ filtros.fechaHasta ? (filtros.fechaHasta | date:'dd MMM') : '--/--' }}</span>
+                </div>
+            </div>
+        </div>
 
-    <!-- Categoría -->
-    <ion-item *ngIf="showCategoria">
-        <ion-label>Categoría</ion-label>
-        <ion-select [(ngModel)]="filtros.categoriaId" (ionChange)="onFiltroChange()">
-            <ion-select-option [value]="undefined">Todas</ion-select-option>
-            <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.id">{{ categoria.nombre
-                }}</ion-select-option>
-        </ion-select>
-    </ion-item>
+        <!-- TIPO DE GASTO -->
+        <div class="filter-section">
+            <span class="section-label">TIPO DE GASTO</span>
+            <div class="horizontal-scroll chips-row">
+                <button class="pill-chip" [class.active]="filtros.tipoGasto === 1"
+                    (click)="selectTipoGasto(1)">Normal</button>
+                <button class="pill-chip" [class.active]="filtros.tipoGasto === 2"
+                    (click)="selectTipoGasto(2)">Cuotas</button>
+                <button class="pill-chip" [class.active]="filtros.tipoGasto === 3"
+                    (click)="selectTipoGasto(3)">Recurrente</button>
+            </div>
+        </div>
 
-    <!-- Agrupación -->
-    <ion-item *ngIf="showAgrupacion">
-        <ion-label>Agrupación</ion-label>
-        <ion-select [(ngModel)]="filtros.agrupacion" (ionChange)="onFiltroChange()">
-            <ion-select-option value="dia">Por día</ion-select-option>
-            <ion-select-option value="semana">Por semana</ion-select-option>
-            <ion-select-option value="mes">Por mes</ion-select-option>
-        </ion-select>
-    </ion-item>
+        <!-- CATEGORÍAS -->
+        <div class="filter-section">
+            <span class="section-label">CATEGORÍAS</span>
+            <div class="chips-grid">
+                <button class="pill-chip" [class.active]="!filtros.categoriaIds || filtros.categoriaIds.length === 0"
+                    (click)="selectCategoria()">
+                    <ion-icon name="apps-outline"></ion-icon>
+                    <span>Todas</span>
+                </button>
+                <button class="pill-chip" *ngFor="let c of categorias"
+                    [class.active]="filtros.categoriaIds?.includes(c.id)" (click)="selectCategoria(c.id)">
+                    <ion-icon [name]="c.icono"></ion-icon>
+                    <span>{{ c.nombre }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Botón limpiar -->
-    <ion-button expand="block" fill="clear" (click)="limpiarFiltros()" class="limpiar-btn">
-        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
-        Limpiar filtros
-    </ion-button>
+    <div class="sheet-footer">
+        <button class="btn-apply" (click)="aplicarFiltros()">
+            Aplicar Filtros <ion-icon name="arrow-forward"></ion-icon>
+        </button>
+    </div>
 </div>

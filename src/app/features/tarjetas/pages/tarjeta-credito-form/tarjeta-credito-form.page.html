@@ -1,4 +1,130 @@
-<app-header [title]="isEditMode ? 'Editar Tarjeta' : 'Nueva Tarjeta'" [showBackButton]="true"></app-header>
-<ion-content class="ion-padding">
-    <p>Formulario Tarjeta Crédito (Pendiente)</p>
+<ion-header class="ion-no-border premium-header">
+    <ion-toolbar mode="ios">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/app/tarjetas" text="" mode="ios"></ion-back-button>
+        </ion-buttons>
+        <ion-title mode="ios">{{ isEditMode ? 'Editar Tarjeta' : 'Agregar Tarjeta' }}</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="form-content">
+    <div class="form-container" [formGroup]="cardForm">
+
+        <!-- Interactive Card Preview -->
+        <div class="preview-section">
+            <app-credit-card-item [tarjeta]="cardPreviewModel" class="full-width-card">
+            </app-credit-card-item>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="inputs-group">
+
+            <!-- Banco Emisor -->
+            <div class="custom-input-wrap">
+                <label>Banco emisor</label>
+                <div class="clean-pill">
+                    <ion-icon name="business-outline"></ion-icon>
+                    <ion-select formControlName="bancoId" interface="action-sheet" placeholder="Seleccionar Banco"
+                        mode="md">
+                        <ion-select-option *ngFor="let b of bancos" [value]="b.id">
+                            {{ b.nombre }}
+                        </ion-select-option>
+                    </ion-select>
+                </div>
+            </div>
+
+            <div class="row-inputs">
+                <!-- Nombre / Alias -->
+                <div class="custom-input-wrap flex-2">
+                    <label>Nombre (Alias)</label>
+                    <div class="clean-pill" [class.has-value]="cardForm.get('nombreTarjeta')?.value">
+                        <ion-icon name="pencil-outline"></ion-icon>
+                        <input type="text" formControlName="nombreTarjeta" placeholder="Ej. Visa Black"
+                            class="clean-native-input">
+                    </div>
+                </div>
+
+                <!-- Últimos 4 -->
+                <div class="custom-input-wrap flex-1">
+                    <label>Últimos 4</label>
+                    <div class="clean-pill" [class.has-value]="cardForm.get('numeroTarjeta')?.value">
+                        <input type="text" formControlName="numeroTarjeta" placeholder="••••" class="clean-native-input"
+                            appNumericFormat [maxDigits]="4" [useThousandSeparator]="false">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Límite Total -->
+            <div class="custom-input-wrap">
+                <label>Límite total</label>
+                <div class="clean-pill amount-pill" [class.has-value]="cardForm.get('limiteCredito')?.value">
+                    <span class="currency-symbol">$</span>
+                    <input type="text" formControlName="limiteCredito" placeholder="0" class="clean-native-input"
+                        appNumericFormat [maxDigits]="8">
+                    <span class="currency-label">ARS</span>
+                </div>
+            </div>
+
+            <!-- Dates Configuration -->
+            <div class="dates-row">
+                <div class="date-input-card">
+                    <div class="d-icon"><ion-icon name="calendar-outline"></ion-icon></div>
+                    <div class="d-text">
+                        <span class="d-label">DÍA CIERRE</span>
+                        <div class="d-val-row">
+                            <ion-input formControlName="diaCierreDefault" type="number" class="day-num"></ion-input>
+                            <span class="d-suffix">cada mes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="date-input-card highlight">
+                    <div class="d-icon"><ion-icon name="calendar-outline"></ion-icon></div>
+                    <div class="d-text">
+                        <span class="d-label">DÍA PAGO</span>
+                        <div class="d-val-row">
+                            <ion-input formControlName="diaVencimientoDefault" type="number"
+                                class="day-num"></ion-input>
+                            <span class="d-suffix">cada mes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Color Selection -->
+            <div class="color-selection">
+                <label>Color de tarjeta</label>
+                <div class="colors-grid">
+                    <!-- Preset Colors -->
+                    <div class="color-option" *ngFor="let c of ['#1e1b4b', '#064e3b', '#4c1d95', '#7f1d1d', '#0f172a']"
+                        [style.background-color]="c" [class.selected]="cardForm.get('color')?.value === c"
+                        (click)="cardForm.patchValue({color: c})">
+                        <ion-icon name="checkmark-sharp" *ngIf="cardForm.get('color')?.value === c"></ion-icon>
+                    </div>
+
+                    <!-- Custom Color Picker -->
+                    <div class="color-option custom-picker"
+                        [style.background-color]="isCustomColor ? cardForm.get('color')?.value : 'rgba(255,255,255,0.05)'"
+                        [class.selected]="isCustomColor" (click)="colorPicker.click()">
+                        <ion-icon [name]="isCustomColor ? 'color-palette' : 'add-outline'"></ion-icon>
+                        <input type="color" #colorPicker class="hidden-picker" (change)="onCustomColorChange($event)">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 </ion-content>
+
+<ion-footer class="ion-no-border premium-footer">
+    <div class="footer-btn-wrap">
+        <ion-button expand="block" class="save-btn" [disabled]="cardForm.invalid || saving" (click)="save()">
+            <span *ngIf="!saving">{{ isEditMode ? 'Guardar Cambios' : 'Guardar Tarjeta' }}</span>
+            <ion-spinner *ngIf="saving" name="crescent"></ion-spinner>
+            <ion-icon name="arrow-forward-outline" slot="end" *ngIf="!saving"></ion-icon>
+        </ion-button>
+    </div>
+</ion-footer>

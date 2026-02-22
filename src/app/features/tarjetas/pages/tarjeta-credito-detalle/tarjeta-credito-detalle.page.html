@@ -3,13 +3,10 @@
         <ion-buttons slot="start">
             <ion-back-button defaultHref="/app/tarjetas" text="" mode="ios"></ion-back-button>
         </ion-buttons>
-        <ion-title mode="ios">Detalle</ion-title>
+        <ion-title mode="ios">Detalle de Tarjeta</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="editTarjeta()" class="action-btn">
-                <ion-icon name="create-outline"></ion-icon>
-            </ion-button>
-            <ion-button (click)="deleteTarjeta()" class="action-btn delete">
-                <ion-icon name="trash-outline"></ion-icon>
+            <ion-button class="config-btn">
+                <ion-icon name="ellipsis-horizontal"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -17,96 +14,115 @@
 
 <ion-content class="detalle-content">
     <div class="detalle-container" *ngIf="tarjeta && !loading">
-        <!-- Visual Card Representation -->
-        <div class="virtual-card-wrapper">
-            <div class="virtual-card" [style.background-color]="tarjeta.color || '#1e1b4b'">
-                <div class="card-shimmer"></div>
-                <div class="card-content">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="bank-label">{{ tarjeta.banco | uppercase }}</p>
-                            <h3 class="card-title">{{ tarjeta.nombre }}</h3>
-                        </div>
-                        <div class="card-chip"></div>
-                    </div>
-                    <div class="card-number-block">
-                        <span class="dots">•••• •••• ••••</span>
-                        <span class="last-digits">{{ tarjeta.ultimosDigitos }}</span>
-                    </div>
-                    <div class="flex justify-between items-end mt-auto">
-                        <div class="card-info-item">
-                            <span class="label">CIERRE</span>
-                            <span class="value">{{ tarjeta.diaCierre }}/04</span>
-                        </div>
-                        <div class="card-info-item">
-                            <span class="label">VENCIMIENTO</span>
-                            <span class="value">{{ tarjeta.diaVencimiento }}/05</span>
-                        </div>
-                        <div class="brand-logo">
-                            <ion-icon name="card"></ion-icon>
-                        </div>
-                    </div>
+        <!-- Visual Card (Same as Home/Dashboard) -->
+        <div class="card-hero-section">
+            <app-credit-card-item [tarjeta]="mapToDashboardCard(tarjeta)" class="full-width-card">
+            </app-credit-card-item>
+        </div>
+
+        <!-- Current Monthly Spending Info -->
+        <div class="spending-section">
+            <span class="section-label">Gasto Mensual Actual</span>
+            <div class="spending-amount-row">
+                <h2 class="amount">{{ gastoMensualCalculado | currency:'$':'symbol':'1.0-2' }}</h2>
+                <span class="monthly-tag">/ mes</span>
+
+                <div class="trend-badge negative">
+                    <ion-icon name="trending-up-outline"></ion-icon>
+                    <span>+12% vs mes pasado</span>
                 </div>
             </div>
         </div>
 
-        <!-- Metric Grid -->
-        <div class="stats-grid">
-            <div class="stat-box">
-                <span class="stat-label">DISPONIBLE</span>
-                <p class="stat-value success">{{ tarjeta.cupoDisponible | currency:'$':'symbol':'1.0-0' }}</p>
+        <!-- 12-Month Projection Button -->
+        <div class="projection-button" ripple [routerLink]="['/app/tarjetas/credito', tarjetaId, 'proyeccion']">
+            <div class="p-icon">
+                <ion-icon name="analytics-outline"></ion-icon>
             </div>
-            <div class="stat-box">
-                <span class="stat-label">GASTO MES</span>
-                <p class="stat-value">{{ tarjeta.gastosMesActual | currency:'$':'symbol':'1.0-0' }}</p>
+            <div class="p-text">
+                <h3>Ver Proyección a 12 meses</h3>
+                <p>Análisis detallado de gastos futuros</p>
             </div>
-            <div class="stat-box">
-                <span class="stat-label">LÍMITE TOTAL</span>
-                <p class="stat-value secondary">{{ tarjeta.cupoTotal | currency:'$':'symbol':'1.0-0' }}</p>
-            </div>
-            <div class="stat-box usage">
-                <span class="stat-label">USO DEL CUPO</span>
-                <div class="usage-row">
-                    <p class="stat-value">{{ getPorcentajeConsumo() }}%</p>
-                    <div class="mini-track">
-                        <div class="mini-fill" [style.width.%]="getPorcentajeConsumo()"></div>
-                    </div>
-                </div>
-            </div>
+            <ion-icon name="chevron-forward-outline" class="p-arrow"></ion-icon>
         </div>
 
-        <!-- Recent Activity Section -->
-        <div class="activity-section">
-            <div class="section-header">
-                <h3 class="section-title">Últimos movimientos</h3>
-                <span class="section-count">{{ movimientos.length }} items</span>
-            </div>
-
-            <div class="movimientos-list" *ngIf="movimientos.length > 0">
-                <div class="movimiento-item ripple" *ngFor="let m of movimientos">
-                    <div class="icon-box" [style.background-color]="m.categoria.color_hex + '20'">
+        <!-- Section: Recent/Standard Expenses -->
+        <div class="movements-group" *ngIf="gastosRecientes.length > 0">
+            <h3 class="group-title">GASTOS RECIENTES</h3>
+            <div class="movimientos-list">
+                <div class="mov-item" *ngFor="let m of gastosRecientes">
+                    <div class="icon-wrap" [style.background-color]="m.categoria.color_hex + '15'">
                         <ion-icon [name]="m.categoria.icono" [style.color]="m.categoria.color_hex"></ion-icon>
                     </div>
-                    <div class="item-body">
-                        <span class="item-desc">{{ m.descripcion }}</span>
-                        <span class="item-date">{{ m.fecha | date:'dd MMM, yyyy' }}</span>
+                    <div class="item-info">
+                        <span class="name">{{ m.descripcion }}</span>
+                        <span class="time">{{ m.fecha | date:'dd MMM, HH:mm' }}</span>
                     </div>
-                    <div class="item-amount">
-                        <span class="amount-val">{{ m.monto | currency:'$':'symbol':'1.0-0' }}</span>
-                        <span class="amount-badge" *ngIf="m.totalCuotas">{{ m.cuotaActual }}/{{ m.totalCuotas }}</span>
+                    <span class="amount">-{{ m.monto | currency:'$':'symbol':'1.2-2' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Active Plans (Instalments) -->
+        <div class="movements-group" *ngIf="planesActivos.length > 0">
+            <div class="group-header" [routerLink]="['/app/tarjetas/credito', tarjetaId, 'cuotas']">
+                <h3 class="group-title">PLANES ACTIVOS</h3>
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+            <div class="planes-list">
+                <div class="plan-card" *ngFor="let p of planesActivos">
+                    <div class="plan-header">
+                        <div class="icon-wrap" [style.background-color]="p.categoria.color_hex + '15'">
+                            <ion-icon [name]="p.categoria.icono" [style.color]="p.categoria.color_hex"></ion-icon>
+                        </div>
+                        <div class="item-info">
+                            <span class="name">{{ p.descripcion }}</span>
+                            <span class="details">{{ p.descripcion }} • {{ p.fecha | date:'dd MMM yyyy' }}</span>
+                        </div>
+                        <div class="amount-wrap">
+                            <span class="amount">{{ (p.monto / p.totalCuotas!) | currency:'$':'symbol':'1.2-2' }}</span>
+                            <span class="freq">mensual</span>
+                        </div>
+                    </div>
+
+                    <div class="plan-progress">
+                        <div class="flex justify-between mb-1">
+                            <span class="p-label success">Cuota {{ p.cuotaActual }} de {{ p.totalCuotas }}</span>
+                            <span class="p-remaining">Restante: {{ getRestantePlan(p) | currency:'$':'symbol':'1.2-2'
+                                }}</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" [style.width.%]="(p.cuotaActual! / p.totalCuotas!) * 100"></div>
+                        </div>
+                        <p class="next-pay">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            Próx. pago: {{ getProximoPagoPlan(p) }}
+                        </p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="empty-movs" *ngIf="movimientos.length === 0">
-                <ion-icon name="receipt-outline"></ion-icon>
-                <p>No hay movimientos registrados para esta tarjeta</p>
+        <!-- Section: Recurring Expenses -->
+        <div class="movements-group" *ngIf="gastosRecurrentes.length > 0">
+            <h3 class="group-title">GASTOS RECURRENTES</h3>
+            <div class="movimientos-list">
+                <div class="mov-item" *ngFor="let r of gastosRecurrentes">
+                    <div class="icon-wrap" [style.background-color]="r.categoria.color_hex + '15'">
+                        <ion-icon [name]="r.categoria.icono" [style.color]="r.categoria.color_hex"></ion-icon>
+                    </div>
+                    <div class="item-info">
+                        <span class="name">{{ r.descripcion }}</span>
+                        <span class="time">Mismo monto todos los meses</span>
+                    </div>
+                    <span class="amount">{{ r.monto | currency:'$':'symbol':'1.2-2' }}</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Loading Shimmer -->
-    <div class="loading-wrap" *ngIf="loading">
+    <!-- Loading -->
+    <div class="loading-full" *ngIf="loading">
         <ion-spinner name="crescent" color="emerald"></ion-spinner>
     </div>
 </ion-content>

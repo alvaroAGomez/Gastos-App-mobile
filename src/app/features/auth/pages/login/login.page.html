@@ -1,61 +1,72 @@
-<ion-content class="ion-padding">
-    <div class="login-container">
-        <div class="logo-section">
-            <ion-icon name="wallet" size="large"></ion-icon>
-            <h1>Gastos App</h1>
-            <p>Control de gastos con tarjetas</p>
+<ion-content class="auth-content">
+    <div class="auth-wrapper">
+
+        <!-- Header / Logo -->
+        <div class="branding-section">
+            <div class="logo-box">
+                <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+            <h1 class="brand-title">GastoSmart</h1>
+            <p class="brand-subtitle">Finanzas inteligentes para ti</p>
         </div>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <ion-item>
-                <ion-label position="floating">Email</ion-label>
-                <ion-input type="email" formControlName="email" autocomplete="email">
-                </ion-input>
-            </ion-item>
-            <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-                <small *ngIf="loginForm.get('email')?.errors?.['required']">El email es requerido</small>
-                <small *ngIf="loginForm.get('email')?.errors?.['email']">Email inválido</small>
+        <!-- Login Card -->
+        <div class="auth-card glass-morph">
+            <h2 class="card-title">Bienvenido de nuevo</h2>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+                <div class="input-group"
+                    [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                    <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+                    <ion-input type="email" formControlName="email" placeholder="Correo electrónico"
+                        autocomplete="email">
+                    </ion-input>
+                </div>
+
+                <div class="input-group"
+                    [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                    <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+                    <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                        placeholder="Contraseña" autocomplete="current-password">
+                    </ion-input>
+                    <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" class="toggle-pwd"
+                        (click)="showPassword = !showPassword">
+                    </ion-icon>
+                </div>
+
+                <div class="forgot-pwd">
+                    <a (click)="onForgotPassword()">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading">
+                    <span *ngIf="!isLoading">Ingresar</span>
+                    <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+                    <ion-icon name="arrow-forward-outline" *ngIf="!isLoading"></ion-icon>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>O USA</span>
             </div>
 
-            <ion-item>
-                <ion-label position="floating">Contraseña</ion-label>
-                <ion-input type="password" formControlName="password" autocomplete="current-password">
-                </ion-input>
-            </ion-item>
-            <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-                <small *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es requerida</small>
-                <small *ngIf="loginForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</small>
+            <!-- Social Auth Row -->
+            <div class="social-row">
+                <button class="social-btn" (click)="onSocialLogin(SocialProvider.GOOGLE)">
+                    <ion-icon name="logo-google"></ion-icon>
+                </button>
+                <button class="social-btn" (click)="onSocialLogin(SocialProvider.APPLE)">
+                    <ion-icon name="logo-apple"></ion-icon>
+                </button>
+                <button class="social-btn" (click)="onSocialLogin(SocialProvider.FACEBOOK)">
+                    <ion-icon name="logo-facebook"></ion-icon>
+                </button>
             </div>
-
-            <ion-button expand="block" type="submit" class="submit-btn" [disabled]="loginForm.invalid">
-                Iniciar Sesión
-            </ion-button>
-        </form>
-
-        <div class="divider">
-            <span>o continúa con</span>
         </div>
 
-        <div class="social-login-container">
-            <app-social-button [provider]="SocialProvider.GOOGLE" label="Google" [loading]="isLoadingSocial"
-                (onClick)="onSocialLogin(SocialProvider.GOOGLE)">
-            </app-social-button>
-
-            <app-social-button [provider]="SocialProvider.FACEBOOK" label="Facebook" [loading]="isLoadingSocial"
-                (onClick)="onSocialLogin(SocialProvider.FACEBOOK)">
-            </app-social-button>
-
-            <app-social-button [provider]="SocialProvider.TWITTER" label="X (Twitter)" [loading]="isLoadingSocial"
-                (onClick)="onSocialLogin(SocialProvider.TWITTER)">
-            </app-social-button>
-
-            <app-social-button [provider]="SocialProvider.APPLE" label="Apple" [loading]="isLoadingSocial"
-                (onClick)="onSocialLogin(SocialProvider.APPLE)">
-            </app-social-button>
-        </div>
-
-        <div class="register-link">
-            <p>¿No tienes cuenta? <a (click)="goToRegister()">Regístrate</a></p>
+        <div class="footer-link">
+            <span>¿No tienes una cuenta?</span>
+            <a (click)="goToRegister()">Crear cuenta</a>
         </div>
     </div>
 </ion-content>

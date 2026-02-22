@@ -1,61 +1,74 @@
-<ion-content class="ion-padding">
-    <div class="register-container">
-        <div class="logo-section">
-            <ion-icon name="person-add" size="large"></ion-icon>
-            <h1>Crear Cuenta</h1>
-            <p>Registrate para comenzar</p>
+<ion-content class="auth-content">
+    <div class="auth-wrapper">
+
+        <!-- Header / Logo -->
+        <div class="branding-section mini">
+            <div class="logo-box">
+                <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+            <h1 class="brand-title">GastoSmart</h1>
+            <p class="brand-subtitle">Únete a la experiencia premium</p>
         </div>
 
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-            <ion-item>
-                <ion-label position="floating">Nombre</ion-label>
-                <ion-input type="text" formControlName="nombre" autocomplete="name">
-                </ion-input>
-            </ion-item>
-            <div class="error-message"
-                *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched">
-                <small *ngIf="registerForm.get('nombre')?.errors?.['required']">El nombre es requerido</small>
-                <small *ngIf="registerForm.get('nombre')?.errors?.['minlength']">Mínimo 2 caracteres</small>
+        <!-- Register Card -->
+        <div class="auth-card glass-morph">
+            <h2 class="card-title">Crea tu cuenta</h2>
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+                <!-- Nombre -->
+                <div class="input-group"
+                    [class.error]="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched">
+                    <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                    <ion-input type="text" formControlName="nombre" placeholder="Nombre completo" autocomplete="name">
+                    </ion-input>
+                </div>
+
+                <!-- Email -->
+                <div class="input-group"
+                    [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+                    <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+                    <ion-input type="email" formControlName="email" placeholder="Correo electrónico"
+                        autocomplete="email">
+                    </ion-input>
+                </div>
+
+                <!-- Password -->
+                <div class="input-group"
+                    [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+                    <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+                    <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                        placeholder="Contraseña" autocomplete="new-password">
+                    </ion-input>
+                    <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" class="toggle-pwd"
+                        (click)="showPassword = !showPassword">
+                    </ion-icon>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="input-group"
+                    [class.error]="(registerForm.errors?.['passwordMismatch'] || registerForm.get('confirmPassword')?.invalid) && registerForm.get('confirmPassword')?.touched">
+                    <ion-icon name="shield-checkmark-outline" class="input-icon"></ion-icon>
+                    <ion-input type="password" formControlName="confirmPassword" placeholder="Confirmar contraseña"
+                        autocomplete="new-password">
+                    </ion-input>
+                </div>
+
+                <button type="submit" class="btn-primary" [disabled]="registerForm.invalid || isLoading">
+                    <span *ngIf="!isLoading">Registrarme</span>
+                    <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+                </button>
+            </form>
+
+            <div class="footer-link-inner">
+                <span>¿Ya tienes cuenta?</span>
+                <a (click)="goToLogin()">Ya tengo cuenta</a>
             </div>
+        </div>
 
-            <ion-item>
-                <ion-label position="floating">Email</ion-label>
-                <ion-input type="email" formControlName="email" autocomplete="email">
-                </ion-input>
-            </ion-item>
-            <div class="error-message" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-                <small *ngIf="registerForm.get('email')?.errors?.['required']">El email es requerido</small>
-                <small *ngIf="registerForm.get('email')?.errors?.['email']">Email inválido</small>
-            </div>
-
-            <ion-item>
-                <ion-label position="floating">Contraseña</ion-label>
-                <ion-input type="password" formControlName="password" autocomplete="new-password">
-                </ion-input>
-            </ion-item>
-            <div class="error-message"
-                *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-                <small *ngIf="registerForm.get('password')?.errors?.['required']">La contraseña es requerida</small>
-                <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</small>
-            </div>
-
-            <ion-item>
-                <ion-label position="floating">Confirmar Contraseña</ion-label>
-                <ion-input type="password" formControlName="confirmPassword" autocomplete="new-password">
-                </ion-input>
-            </ion-item>
-            <div class="error-message"
-                *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched">
-                <small>Las contraseñas no coinciden</small>
-            </div>
-
-            <ion-button expand="block" type="submit" class="submit-btn" [disabled]="registerForm.invalid">
-                Registrarse
-            </ion-button>
-        </form>
-
-        <div class="login-link">
-            <p>¿Ya tienes cuenta? <a (click)="goToLogin()">Inicia sesión</a></p>
+        <div class="legal-notice">
+            <p>Al registrarte, aceptas nuestros <a>Términos y Condiciones</a> y nuestra <a>Política de Privacidad</a>.
+            </p>
         </div>
     </div>
 </ion-content>

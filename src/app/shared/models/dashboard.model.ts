@@ -18,6 +18,7 @@ export interface Categoria {
 
 export interface TarjetaDashboard {
   tarjetaId: number;
+  id?: number; // Para compatibilidad con otros servicios
   nombreTarjeta: string;
   ultimos4: string;
   banco: string;
@@ -27,6 +28,7 @@ export interface TarjetaDashboard {
   limiteDisponible: number;
   porcentajeUso: number;
   fechaCierre?: string;
+  color?: string; // Para UI personalizada
 }
 
 export interface TarjetaSimple {

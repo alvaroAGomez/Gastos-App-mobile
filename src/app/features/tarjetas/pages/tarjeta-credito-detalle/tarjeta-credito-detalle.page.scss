@@ -5,26 +5,29 @@ ion-header.premium-header {
   ion-toolbar {
     --background: transparent;
     --border-width: 0;
-    padding: 0 8px;
+    padding: 0 12px;
   }
 
   ion-title {
-    font-size: 18px !important;
-    font-weight: 800;
+    font-size: 17px !important;
+    font-weight: 700;
     color: #fff;
   }
 
-  .action-btn {
+  ion-back-button {
+    --color: #fff;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .config-btn {
     --color: rgba(255,255,255,0.6);
     --background: rgba(255,255,255,0.05);
-    margin-left: 8px;
-    height: 36px;
-    --border-radius: 10px;
-
-    &.delete {
-        --color: #ef4444;
-        --background: rgba(239,68,68,0.1);
-    }
+    --border-radius: 12px;
+    width: 44px;
+    height: 44px;
   }
 }
 
@@ -33,211 +36,171 @@ ion-header.premium-header {
 }
 
 .detalle-container {
-    padding: 0 0 100px;
+    padding: 0 20px 100px;
 }
 
-/* ── Virtual Card ──────────────────────────────── */
-.virtual-card-wrapper {
-    padding: 20px;
-    perspective: 1000px;
+/* ── Hero Card ─────────────────────────────────── */
+.card-hero-section {
+    padding: 20px 0;
+    
+    .full-width-card {
+        ::ng-deep .card-wrapper {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+    }
 }
 
-.virtual-card {
-    height: 200px;
-    border-radius: 24px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.1);
-
-    .card-shimmer {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
-        pointer-events: none;
+/* ── Spending Info ─────────────────────────────── */
+.spending-section {
+    margin-bottom: 24px;
+    
+    .section-label {
+        font-size: 13px;
+        color: rgba(255,255,255,0.4);
+        font-weight: 500;
     }
-
-    .card-content {
-        height: 100%;
-        padding: 24px;
+    
+    .spending-amount-row {
         display: flex;
-        flex-direction: column;
-        position: relative;
-        z-index: 1;
-    }
-
-    .bank-label {
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.2em;
-        color: rgba(255,255,255,0.6);
-        margin: 0;
-    }
-
-    .card-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #fff;
-        margin: 4px 0 0;
-    }
-
-    .card-chip {
-        width: 48px;
-        height: 36px;
-        background: linear-gradient(135deg, #d4d4d8 0%, #a1a1aa 100%);
-        border-radius: 6px;
-        position: relative;
-        &:after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 0; width: 100%; height: 1px;
-            background: rgba(0,0,0,0.1);
-        }
-    }
-
-    .card-number-block {
-        margin-top: 32px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
         
-        .dots {
-            font-size: 18px;
-            letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.5);
+        .amount {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
         }
         
-        .last-digits {
-            font-size: 18px;
+        .monthly-tag {
+            font-size: 14px;
+            color: rgba(255,255,255,0.3);
             font-weight: 600;
-            color: #fff;
         }
-    }
-
-    .card-info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
         
-        .label {
-            font-size: 8px;
+        .trend-badge {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 700;
-            color: rgba(255,255,255,0.4);
-            letter-spacing: 0.1em;
-        }
-        
-        .value {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fff;
-        }
-    }
-
-    .brand-logo {
-        font-size: 32px;
-        color: rgba(255,255,255,0.8);
-    }
-}
-
-/* ── Stats Grid ────────────────────────────────── */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding: 0 20px 24px;
-}
-
-.stat-box {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 18px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    &.usage {
-        grid-column: span 2;
-    }
-
-    .stat-label {
-        font-size: 10px;
-        font-weight: 700;
-        color: rgba(255,255,255,0.3);
-        letter-spacing: 0.05em;
-    }
-
-    .stat-value {
-        font-size: 18px;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-
-        &.success { color: #10b981; }
-        &.secondary { color: rgba(255,255,255,0.6); }
-    }
-
-    .usage-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        
-        .mini-track {
-            flex: 1;
-            height: 6px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 3px;
-            overflow: hidden;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
             
-            .mini-fill {
-                height: 100%;
-                background: #10b981;
-                border-radius: 3px;
+            &.negative {
+                background: rgba(16, 185, 129, 0.05);
+                border: 1px solid rgba(16, 185, 129, 0.1);
             }
         }
     }
 }
 
-/* ── Activity Section ──────────────────────────── */
-.activity-section {
-    padding: 0 20px;
+/* ── Projection Button ─────────────────────────── */
+.projection-button {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
     
-    .section-header {
+    .p-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 14px;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
+        justify-content: center;
+        font-size: 20px;
+        color: #fff;
+    }
+    
+    .p-text {
+        flex: 1;
         
-        .section-title {
-            font-size: 16px;
+        h3 {
+            font-size: 15px;
             font-weight: 700;
             color: #fff;
             margin: 0;
         }
         
-        .section-count {
+        p {
             font-size: 12px;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.35);
+            margin: 2px 0 0;
         }
+    }
+    
+    .p-arrow {
+        font-size: 20px;
+        color: rgba(16, 185, 129, 0.4);
+        background: rgba(16, 185, 129, 0.05);
+        padding: 8px;
+        border-radius: 50%;
+    }
+}
+
+/* ── Movements Group ───────────────────────────── */
+.movements-group {
+    margin-bottom: 32px;
+    
+    .group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-right: 4px;
+        margin-bottom: 16px;
+        cursor: pointer;
+
+        &:active {
+            opacity: 0.6;
+        }
+
+        .group-title { margin-bottom: 0; }
+        
+        ion-icon {
+            font-size: 16px;
+            color: rgba(255,255,255,0.2);
+        }
+    }
+
+    .group-title {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        color: rgba(255,255,255,0.25);
+        margin-bottom: 16px;
     }
 }
 
 .movimientos-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 24px;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
 }
 
-.movimiento-item {
+.mov-item {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     padding: 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 16px;
-
-    .icon-box {
+    
+    &:not(:last-child) {
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    
+    .icon-wrap {
         width: 44px;
         height: 44px;
         border-radius: 12px;
@@ -246,66 +209,106 @@ ion-header.premium-header {
         justify-content: center;
         font-size: 20px;
     }
-
-    .item-body {
+    
+    .item-info {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 2px;
         
-        .item-desc {
-            font-size: 14px;
-            font-weight: 600;
-            color: #fff;
-        }
-        
-        .item-date {
-            font-size: 11px;
-            color: rgba(255,255,255,0.35);
-        }
-    }
-
-    .item-amount {
-        text-align: right;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        
-        .amount-val {
+        .name {
             font-size: 15px;
             font-weight: 700;
             color: #fff;
         }
         
-        .amount-badge {
-            font-size: 9px;
-            background: rgba(255,255,255,0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: rgba(255,255,255,0.5);
-            width: fit-content;
-            margin-left: auto;
+        .time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 2px;
+        }
+    }
+    
+    .amount {
+        font-size: 15px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.01em;
+    }
+}
+
+/* ── Planes Card ───────────────────────────────── */
+.planes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.plan-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    padding: 20px;
+    
+    .plan-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+        
+        .icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .item-info {
+            flex: 1;
+            .name { font-size: 16px; font-weight: 700; color: #fff; display: block; }
+            .details { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 2px; display: block; }
+        }
+        
+        .amount-wrap {
+            text-align: right;
+            .amount { font-size: 17px; font-weight: 800; color: #fff; display: block; }
+            .freq { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 700; display: block; }
+        }
+    }
+    
+    .plan-progress {
+        .p-label { font-size: 13px; font-weight: 700; color: #10b981; }
+        .p-remaining { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 600; }
+        
+        .progress-track {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+            
+            .progress-fill {
+                height: 100%;
+                background: #10b981;
+                box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+                border-radius: 3px;
+            }
+        }
+        
+        .next-pay {
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
         }
     }
 }
 
-.empty-movs {
-    padding: 40px 20px;
-    text-align: center;
-    color: rgba(255,255,255,0.2);
-    
-    ion-icon {
-        font-size: 48px;
-        margin-bottom: 12px;
-    }
-    
-    p {
-        font-size: 14px;
-        margin: 0;
-    }
-}
-
-.loading-wrap {
+.loading-full {
     height: 300px;
     display: flex;
     align-items: center;

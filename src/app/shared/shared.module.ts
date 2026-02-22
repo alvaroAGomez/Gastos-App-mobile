@@ -16,6 +16,9 @@ import { ActionButtonComponent } from './components/action-button/action-button.
 import { CreditCardItemComponent } from './components/credit-card-item/credit-card-item.component';
 import { TransactionItemComponent } from './components/transaction-item/transaction-item.component';
 
+// Directives
+import { NumericFormatDirective } from './directives/numeric-format.directive';
+
 // Pipes
 import { SumMontoPipe } from './pipes/sum-monto.pipe';
 
@@ -35,8 +38,12 @@ const PIPES = [
   SumMontoPipe
 ];
 
+const DIRECTIVES = [
+  NumericFormatDirective
+];
+
 @NgModule({
-  declarations: [...COMPONENTS, ...PIPES],
+  declarations: [...COMPONENTS, ...PIPES, ...DIRECTIVES],
   imports: [
     CommonModule,
     RouterModule,
@@ -48,6 +55,7 @@ const PIPES = [
   exports: [
     ...COMPONENTS,
     ...PIPES,
+    ...DIRECTIVES,
     CommonModule,
     RouterModule,
     IonicModule,

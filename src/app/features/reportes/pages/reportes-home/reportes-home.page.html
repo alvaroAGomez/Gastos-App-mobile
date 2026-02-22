@@ -1,34 +1,95 @@
-<app-header title="Reportes" [showBackButton]="false"></app-header>
+<ion-header class="ion-no-border premium-header">
+    <ion-toolbar mode="ios">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <div class="header-main">
+            <h1 class="page-title">Reportes</h1>
+            <div class="header-selectors">
+                <div class="h-chip">
+                    <ion-select [(ngModel)]="filtros.anio" (ionChange)="onHeaderFilterChange()" interface="popover"
+                        mode="md" class="h-sel">
+                        <ion-select-option *ngFor="let a of anios" [value]="a">Año {{ a }}</ion-select-option>
+                    </ion-select>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                </div>
+                <div class="h-chip">
+                    <ion-select [(ngModel)]="filtros.mes" (ionChange)="onHeaderFilterChange()" interface="popover"
+                        mode="md" class="h-sel" placeholder="Mes">
+                        <ion-select-option [value]="undefined">Todos los meses</ion-select-option>
+                        <ion-select-option *ngFor="let m of meses" [value]="m.value">{{ m.label }}</ion-select-option>
+                    </ion-select>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                </div>
+            </div>
+        </div>
+        <ion-buttons slot="end">
+            <button class="btn-filter" (click)="openFilters()">
+                <ion-icon name="filter-outline"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
 
-<ion-content class="ion-padding">
-    <div class="reportes-container">
-        <ion-list>
-            <ion-item button routerLink="/app/reportes/gastos-mensuales">
-                <ion-icon name="calendar" slot="start"></ion-icon>
-                <ion-label>
-                    <h2>Gastos Mensuales</h2>
-                    <p>Ver gastos agrupados por mes</p>
-                </ion-label>
-                <ion-icon name="chevron-forward" slot="end"></ion-icon>
-            </ion-item>
+<ion-content class="reportes-content shadow-top">
+    <div class="dashboard-scroll">
 
-            <ion-item button routerLink="/app/reportes/por-categoria">
-                <ion-icon name="pricetags" slot="start"></ion-icon>
-                <ion-label>
-                    <h2>Por Categoría</h2>
-                    <p>Distribución de gastos por categoría</p>
-                </ion-label>
-                <ion-icon name="chevron-forward" slot="end"></ion-icon>
-            </ion-item>
+        <!-- Distribution Chart -->
+        <div class="report-card main-card">
+            <div class="card-header">
+                <h3>Distribución por Categoría</h3>
+            </div>
+            <div class="chart-container pie-container">
+                <app-expense-charts chartType="doughnut" [data]="chartDataGastoCategoria" [loading]="loading">
+                </app-expense-charts>
+                <div class="pie-center-info" *ngIf="!loading">
+                    <span class="center-lab">TOTAL</span>
+                    <span class="center-val">$309.5k</span>
+                </div>
+            </div>
+            <!-- Custom Legend simplified -->
+            <div class="refined-legend" *ngIf="!loading">
+                <div class="leg-item" *ngFor="let label of chartDataGastoCategoria?.labels; let i = index">
+                    <div class="leg-dot" [style.background]="chartDataGastoCategoria?.datasets![0].backgroundColor![i]">
+                    </div>
+                    <span class="leg-name">{{ label }}</span>
+                    <span class="leg-val">${{ chartDataGastoCategoria?.datasets![0].data![i] }}k</span>
+                </div>
+            </div>
+        </div>
 
-            <ion-item button routerLink="/app/reportes/por-tarjeta">
-                <ion-icon name="card" slot="start"></ion-icon>
-                <ion-label>
-                    <h2>Por Tarjeta</h2>
-                    <p>Gastos distribuidos por tarjeta</p>
-                </ion-label>
-                <ion-icon name="chevron-forward" slot="end"></ion-icon>
-            </ion-item>
-        </ion-list>
+        <!-- Evolution Chart (Visa vs Mastercard Example) -->
+        <div class="report-card">
+            <div class="card-header">
+                <h3>Visa vs Mastercard</h3>
+                <span class="card-tag">Q1 2026</span>
+            </div>
+            <div class="chart-container bar-container">
+                <app-expense-charts chartType="bar" [data]="chartDataGastoPorTarjeta" [loading]="loading">
+                </app-expense-charts>
+            </div>
+        </div>
+
+        <!-- Line Chart (Trend) -->
+        <div class="report-card">
+            <div class="card-header">
+                <h3>Tendencia de Gastos</h3>
+                <p class="card-sub">Cuotas vs Débitos</p>
+            </div>
+            <div class="chart-container line-container">
+                <app-expense-charts chartType="line" [data]="chartDataEvolucionMensual" [loading]="loading">
+                </app-expense-charts>
+            </div>
+        </div>
+
     </div>
+
+    <!-- Filter Modal -->
+    <ion-modal [isOpen]="showFilterModal" (didDismiss)="showFilterModal = false" class="sheet-modal">
+        <ng-template>
+            <app-filtros-reportes [filtros]="filtros" (filtrosChange)="onFiltrosChange($event)"
+                (close)="showFilterModal = false">
+            </app-filtros-reportes>
+        </ng-template>
+    </ion-modal>
 </ion-content>

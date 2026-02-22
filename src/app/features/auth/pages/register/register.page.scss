@@ -1,52 +1,145 @@
-.register-container {
-  max-width: 400px;
-  margin: 0 auto;
-  padding-top: 2rem;
+/* Reuse common patterns from login */
+.auth-content {
+    --background: radial-gradient(circle at top right, #1a1b2e 0%, #0b0a14 100%);
+}
 
-  .logo-section {
+.auth-wrapper {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+}
+
+.branding-section {
     text-align: center;
-    margin-bottom: 2rem;
-
-    ion-icon {
-      font-size: 4rem;
-      color: var(--ion-color-primary);
-    }
-
-    h1 {
-      margin: 1rem 0 0.5rem;
-    }
-
-    p {
-      color: var(--ion-color-medium);
-    }
-  }
-
-  form {
-    ion-item {
-      margin-bottom: 0.5rem;
-    }
-
-    .submit-btn {
-      margin-top: 2rem;
-    }
-  }
-
-  .error-message {
-    padding: 0.25rem 1rem;
+    margin-bottom: 32px;
     
-    small {
-      color: var(--ion-color-danger);
+    &.mini .logo-box {
+        width: 54px; height: 54px;
+        ion-icon { font-size: 24px; }
     }
-  }
 
-  .login-link {
+    .logo-box {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1.5px solid rgba(16, 185, 129, 0.3);
+        border-radius: 16px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+
+    .brand-title {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 900;
+        margin: 12px 0 4px;
+        letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 13px;
+    }
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 24px;
+    border-radius: 28px;
+    background: rgba(20, 22, 36, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    .card-title {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 24px;
+    }
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.input-group {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 54px;
+    transition: all 0.3s;
+
+    &.error { border-color: rgba(244, 63, 94, 0.4); }
+    &:focus-within { border-color: rgba(16, 185, 129, 0.4); background: rgba(255,255,255,0.05); }
+
+    .input-icon { font-size: 18px; color: rgba(255, 255, 255, 0.2); margin-right: 12px; }
+    
+    ion-input {
+        --color: #fff;
+        --placeholder-color: rgba(255, 255, 255, 0.3);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .toggle-pwd { font-size: 18px; color: rgba(255,255,255,0.15); cursor: pointer; }
+}
+
+.btn-primary {
+    margin-top: 12px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 18px;
+    height: 54px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+    
+    &:active { transform: scale(0.97); }
+    &:disabled { opacity: 0.5; }
+}
+
+.footer-link-inner {
+    margin-top: 24px;
     text-align: center;
-    margin-top: 2rem;
-
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    
     a {
-      color: var(--ion-color-primary);
-      cursor: pointer;
-      text-decoration: underline;
+        color: #10b981;
+        font-weight: 800;
+        margin-left: 6px;
+        text-decoration: none;
     }
-  }
+}
+
+.legal-notice {
+    margin-top: 32px;
+    text-align: center;
+    padding: 0 20px;
+    
+    p {
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 11px;
+        line-height: 1.6;
+        
+        a {
+            color: rgba(255, 255, 255, 0.3);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+    }
 }

@@ -10,6 +10,12 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './core/core.module';
 
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEsAr from '@angular/common/locales/es-AR';
+
+registerLocaleData(localeEsAr);
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -21,6 +27,7 @@ import { CoreModule } from './core/core.module';
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: LOCALE_ID, useValue: 'es-AR' },
     provideCharts(withDefaultRegisterables())
   ],
   bootstrap: [AppComponent],

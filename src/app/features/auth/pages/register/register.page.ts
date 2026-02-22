@@ -13,6 +13,8 @@ import { LoadingService } from '../../../../core/services/loading.service';
 })
 export class RegisterPage implements OnInit {
   registerForm!: FormGroup;
+  isLoading = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -36,11 +38,7 @@ export class RegisterPage implements OnInit {
   passwordMatchValidator(control: AbstractControl): {[key: string]: boolean} | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
-
-    if (!password || !confirmPassword) {
-      return null;
-    }
-
+    if (!password || !confirmPassword) return null;
     return password.value === confirmPassword.value ? null : { passwordMismatch: true };
   }
 
@@ -51,24 +49,29 @@ export class RegisterPage implements OnInit {
     }
 
     try {
-      await this.loadingService.show('Registrando...');
+      this.isLoading = true;
+      await this.loadingService.show('Creando tu cuenta premium...');
 
       const { confirmPassword, ...registerDto } = this.registerForm.value;
 
       this.authService.register(registerDto).subscribe({
         next: async (response) => {
           await this.loadingService.hide();
-          await this.toastService.showSuccess('¡Registro exitoso!');
+          await this.toastService.showSuccess('¡Bienvenido a GastoSmart!');
           this.router.navigate(['/app/dashboard']);
         },
         error: async (error) => {
           await this.loadingService.hide();
+          this.isLoading = false;
           console.error('Register error:', error);
+          this.toastService.showError('Error al crear la cuenta. Intenta de nuevo.');
         }
       });
     } catch (error) {
       await this.loadingService.hide();
+      this.isLoading = false;
       console.error('Register error:', error);
+      this.toastService.showError('Ocurrió un error inesperado');
     }
   }
 

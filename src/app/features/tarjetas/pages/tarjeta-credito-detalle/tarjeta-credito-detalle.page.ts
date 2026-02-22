@@ -5,6 +5,7 @@ import { GastosService } from '../../../gastos/services/gastos.service';
 import { TarjetaCredito } from '../../models/tarjeta.model';
 import { GastoListadoItem } from '../../../gastos/models/gasto.model';
 import { MOCK_TARJETAS_CREDITO } from '../../mocks/tarjetas.mock';
+import { MOCK_GASTOS } from '../../../gastos/mocks/gastos.mock';
 import { AlertController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -16,7 +17,6 @@ import { AlertController, ToastController } from '@ionic/angular';
 export class TarjetaCreditoDetallePage implements OnInit {
   tarjetaId: number | null = null;
   tarjeta: TarjetaCredito | null = null;
-  movimientos: GastoListadoItem[] = [];
   loading = true;
 
   constructor(
@@ -54,24 +54,73 @@ export class TarjetaCreditoDetallePage implements OnInit {
     });
   }
 
+  gastosRecientes: GastoListadoItem[] = [];
+  planesActivos: GastoListadoItem[] = [];
+  gastosRecurrentes: GastoListadoItem[] = [];
+
   private loadMovimientos() {
     if (!this.tarjetaId) return;
 
-    this.gastosService.getGastosPaginados({ tarjetaId: this.tarjetaId, limit: 10 }).subscribe({
+    this.gastosService.getGastosPaginados({ tarjetaId: this.tarjetaId, limit: 30 }).subscribe({
       next: (res) => {
-        this.movimientos = res.gastos || [];
+        let all = res.gastos || [];
+        
+        if (all.length === 0) {
+          // Fallback to MOCK_GASTOS filtered by a representative mapping
+          // (since mock IDs might not match strictly, we take those similar to the requested tarjeta)
+          all = MOCK_GASTOS.filter(g => g.tarjeta.id === 1 || g.tarjeta.id === this.tarjetaId);
+        }
+
+        this.processMovimientos(all);
         this.loading = false;
       },
       error: () => {
-        this.movimientos = []; // In a real app we might mock these too
+        const all = MOCK_GASTOS.filter(g => g.tarjeta.id === 1);
+        this.processMovimientos(all);
         this.loading = false;
       }
     });
   }
 
-  getPorcentajeConsumo(): number {
-    if (!this.tarjeta || !this.tarjeta.cupoTotal) return 0;
-    return Math.round(((this.tarjeta.gastosMesActual || 0) / this.tarjeta.cupoTotal) * 100);
+  private processMovimientos(all: GastoListadoItem[]) {
+    this.planesActivos = all.filter(g => (g.totalCuotas || 0) > 0);
+    this.gastosRecurrentes = all.filter(g => g.esDebitoAuto);
+    this.gastosRecientes = all.filter(g => !(g.totalCuotas || 0) && !g.esDebitoAuto);
+  }
+
+  mapToDashboardCard(t: TarjetaCredito): any {
+    return {
+      tarjetaId: t.id,
+      nombreTarjeta: t.nombre,
+      banco: t.banco,
+      ultimos4: t.ultimosDigitos,
+      limiteTotal: t.cupoTotal,
+      limiteDisponible: t.cupoDisponible,
+      gastosEsteMes: t.gastosMesActual || 0,
+      porcentajeUso: Math.round(((t.gastosMesActual || 0) / t.cupoTotal) * 100),
+      fechaCierre: `${t.diaCierre}/04`,
+      color: t.color || '#1e1b4b'
+    };
+  }
+
+  get gastoMensualCalculado(): number {
+    if (!this.tarjeta) return 0;
+    
+    const sumRecientes = this.gastosRecientes.reduce((acc, g) => acc + g.monto, 0);
+    const sumRecurrentes = this.gastosRecurrentes.reduce((acc, g) => acc + g.monto, 0);
+    const sumCuotas = this.planesActivos.reduce((acc, g) => {
+      return acc + (g.monto / (g.totalCuotas || 1));
+    }, 0);
+
+    return sumRecientes + sumRecurrentes + sumCuotas;
+  }
+
+  getProximoPagoPlan(g: GastoListadoItem): string {
+    return "05 Mar"; // Mocked for UI visual
+  }
+
+  getRestantePlan(g: GastoListadoItem): number {
+    return (g.totalCuotas! - g.cuotaActual!) * (g.monto / g.totalCuotas!);
   }
 
   async deleteTarjeta() {

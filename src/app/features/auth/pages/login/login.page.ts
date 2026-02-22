@@ -16,7 +16,9 @@ import { SocialProvider } from '../../../../core/models/social-auth.models';
 export class LoginPage implements OnInit {
   loginForm!: FormGroup;
   SocialProvider = SocialProvider;
+  isLoading = false;
   isLoadingSocial = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -41,7 +43,8 @@ export class LoginPage implements OnInit {
     }
 
     try {
-      await this.loadingService.show('Iniciando sesión...');
+      this.isLoading = true;
+      await this.loadingService.show('Verificando credenciales...');
       
       this.authService.login(this.loginForm.value).subscribe({
         next: async (response) => {
@@ -51,12 +54,14 @@ export class LoginPage implements OnInit {
         },
         error: async (error) => {
           await this.loadingService.hide();
+          this.isLoading = false;
           console.error('Login error:', error);
           this.toastService.showError('Error al iniciar sesión');
         }
       });
     } catch (error) {
       await this.loadingService.hide();
+      this.isLoading = false;
       console.error('Login error:', error);
       this.toastService.showError('Error inesperado');
     }
@@ -78,21 +83,16 @@ export class LoginPage implements OnInit {
         case SocialProvider.FACEBOOK:
           result = await this.socialAuthService.loginWithFacebook();
           break;
-        case SocialProvider.TWITTER:
-          // result = await this.socialAuthService.loginWithTwitter();
-           this.toastService.showInfo('Inicio con X (Twitter) próximamente');
-           this.isLoadingSocial = false;
-           await this.loadingService.hide();
-           return;
         case SocialProvider.APPLE:
           result = await this.socialAuthService.loginWithApple();
+          break;
+        default:
+          this.toastService.showInfo('Proveedor no disponible actualmente');
           break;
       }
       
       if (result) {
-        console.log('Social Login Success:', result);
         // TODO: Validate with backend here using authService
-        
         await this.loadingService.hide();
         await this.toastService.showSuccess(`¡Bienvenido ${result.user?.name || ''}!`);
         this.router.navigate(['/app/dashboard']);
@@ -101,17 +101,20 @@ export class LoginPage implements OnInit {
     } catch (error) {
       console.error('Social Login Error:', error);
       await this.loadingService.hide();
-      this.toastService.showError('Error en autenticación social. Verifica tu configuración.');
+      this.toastService.showError('Error en autenticación social');
     } finally {
       this.isLoadingSocial = false;
     }
+  }
+
+  onForgotPassword() {
+    this.toastService.showInfo('Funcionalidad de recuperación próximamente');
   }
 
   private getProviderName(provider: SocialProvider): string {
     switch (provider) {
       case SocialProvider.GOOGLE: return 'Google';
       case SocialProvider.FACEBOOK: return 'Facebook';
-      case SocialProvider.TWITTER: return 'Twitter';
       case SocialProvider.APPLE: return 'Apple';
       default: return 'red social';
     }

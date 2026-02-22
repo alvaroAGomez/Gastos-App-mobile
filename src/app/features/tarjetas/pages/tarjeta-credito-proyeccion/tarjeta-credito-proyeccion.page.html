@@ -1,0 +1,92 @@
+<ion-header class="ion-no-border premium-header">
+    <ion-toolbar mode="ios">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/app/tarjetas" text="" mode="ios"></ion-back-button>
+        </ion-buttons>
+        <ion-title mode="ios">Proyección a 12 meses</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="proyeccion-content">
+    <div class="proyeccion-container" *ngIf="proyeccion && !loading">
+
+        <!-- Summary Dashboard -->
+        <div class="hero-summary">
+            <span class="label">TOTAL PROYECTADO (12 MESES)</span>
+            <h2 class="total">{{ proyeccion.totalProyectado12Meses | currency:'$':'symbol':'1.0-0' }}</h2>
+
+            <div class="avg-row">
+                <div class="avg-pill">
+                    <ion-icon name="stats-chart"></ion-icon>
+                    <span>Promedio Mensual: <b>{{ proyeccion.promedioMensual | currency:'$':'symbol':'1.0-0'
+                            }}</b></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Highlights Row -->
+        <h3 class="section-title">HIGHLIGHTS</h3>
+        <div class="highlights-grid">
+            <div class="highlight-card limit-high">
+                <div class="h-header">
+                    <ion-icon name="trending-up" class="up"></ion-icon>
+                    <span>MAYOR GASTO</span>
+                </div>
+                <h3>{{ proyeccion.mesConMayorGasto.nombreMes }}</h3>
+                <p class="h-amount">{{ proyeccion.mesConMayorGasto.total | currency:'$':'symbol':'1.0-0' }}</p>
+                <div class="glow-border"></div>
+            </div>
+
+            <div class="highlight-card limit-low">
+                <div class="h-header">
+                    <ion-icon name="trending-down" class="down"></ion-icon>
+                    <span>MENOR GASTO</span>
+                </div>
+                <h3>{{ proyeccion.mesConMenorGasto.nombreMes }}</h3>
+                <p class="h-amount">{{ proyeccion.mesConMenorGasto.total | currency:'$':'symbol':'1.0-0' }}</p>
+                <div class="glow-border"></div>
+            </div>
+        </div>
+
+        <!-- Chronogram -->
+        <h3 class="section-title">CRONOGRAMA DE GASTOS</h3>
+        <div class="cronograma-list">
+            <div class="mes-item" *ngFor="let m of proyeccion.gastosPorMes">
+                <div class="mes-badge" [class.is-max]="m.mes === proyeccion.mesConMayorGasto.mes"
+                    [class.is-min]="m.mes === proyeccion.mesConMenorGasto.mes">
+                    {{ m.nombreMes.slice(0, 3) | uppercase }}
+                </div>
+
+                <div class="mes-info">
+                    <div class="mes-top-row">
+                        <div class="name-box">
+                            <span class="m-name">{{ m.nombreMes }} <span class="year">{{ getYearFromMes(m.mes)
+                                    }}</span></span>
+                            <ion-icon name="star" class="peak-star"
+                                *ngIf="m.mes === proyeccion.mesConMayorGasto.mes"></ion-icon>
+                        </div>
+                        <div class="amount-box">
+                            <span class="m-total">{{ m.total | currency:'$':'symbol':'1.0-0' }}</span>
+                            <div class="progress-track">
+                                <div class="progress-fill" [style.width.%]="getPercentOfMax(m.total)"
+                                    [class.max-fill]="m.mes === proyeccion.mesConMayorGasto.mes"
+                                    [class.min-fill]="m.mes === proyeccion.mesConMenorGasto.mes">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="m-status-row">
+                        <span class="m-hint" *ngIf="m.mes === proyeccion.mesConMayorGasto.mes">Pico de consumo</span>
+                        <span class="m-hint" *ngIf="m.mes === proyeccion.mesConMenorGasto.mes">Mínimo proyectado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-wrap" *ngIf="loading">
+        <ion-spinner name="crescent" color="emerald"></ion-spinner>
+    </div>
+</ion-content>
