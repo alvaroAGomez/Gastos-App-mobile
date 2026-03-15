@@ -3,7 +3,7 @@
     <ion-list *ngIf="bancos.length > 0; else empty">
         <ion-item *ngFor="let banco of bancos">
             <ion-avatar slot="start">
-                <div [style.background-color]="banco.color || '#ccc'" class="bank-avatar"></div>
+                <div class="bank-avatar" style="background-color: var(--ion-color-primary, #ccc)"></div>
             </ion-avatar>
             <ion-label>{{ banco.nombre }}</ion-label>
         </ion-item>

@@ -65,8 +65,9 @@
 
 <!-- Create Button -->
 <ion-footer class="cat-footer ion-no-border">
-    <button class="crear-btn" [class.disabled]="!nombre.trim()" (click)="crear()">
-        <span>{{ isEditMode ? 'Guardar Cambios' : 'Crear Categoría' }}</span>
-        <ion-icon name="checkmark"></ion-icon>
+    <button class="crear-btn" [class.disabled]="!nombre.trim() || saving" [disabled]="saving" (click)="crear()">
+        <span>{{ saving ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Categoría') }}</span>
+        <ion-spinner *ngIf="saving" name="crescent"></ion-spinner>
+        <ion-icon *ngIf="!saving" name="checkmark"></ion-icon>
     </button>
 </ion-footer>

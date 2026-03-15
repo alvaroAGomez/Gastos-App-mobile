@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, from, of } from 'rxjs';
+import { tap, switchMap, map } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api.service';
 import { StorageService } from './storage.service';
 import { ENDPOINTS } from '../constants/endpoints';
+import { ApiResponse } from '../models/api-response.model';
 
 interface LoginDto {
   email: string;
@@ -13,18 +14,18 @@ interface LoginDto {
 }
 
 interface RegisterDto {
-  nombre?: string;
+  nombre: string;
   email: string;
   password: string;
 }
 
-interface AuthResponse {
-  token: string;
+interface AuthData {
+  access_token: string;
   user?: any;
 }
 
 interface JwtPayload {
-  userId?: number;
+  sub?: number;
   exp?: number;
   [key: string]: any;
 }
@@ -46,24 +47,36 @@ export class AuthService {
   }
 
   private async checkAuth(): Promise<void> {
+    await this.storage.ready();
     const token = await this.getToken();
     this.authState$.next(!!token);
   }
 
-  login(dto: LoginDto): Observable<AuthResponse> {
-    return this.api.post<AuthResponse>(ENDPOINTS.auth.login, dto).pipe(
-      tap(async (response) => {
-        await this.storage.set(TOKEN_KEY, response.token);
-        this.authState$.next(true);
+  login(dto: LoginDto): Observable<ApiResponse<AuthData>> {
+    return this.api.post<ApiResponse<AuthData>>(ENDPOINTS.auth.login, dto).pipe(
+      // Usamos switchMap para asegurar que el guardado sea secuencial y esperar a que termine
+      switchMap(response => {
+        if (response.ok && response.data.access_token) {
+          return from(this.storage.set(TOKEN_KEY, response.data.access_token)).pipe(
+            tap(() => this.authState$.next(true)),
+            map(() => response)
+          );
+        }
+        return of(response);
       })
     );
   }
 
-  register(dto: RegisterDto): Observable<AuthResponse> {
-    return this.api.post<AuthResponse>(ENDPOINTS.auth.register, dto).pipe(
-      tap(async (response) => {
-        await this.storage.set(TOKEN_KEY, response.token);
-        this.authState$.next(true);
+  register(dto: RegisterDto): Observable<ApiResponse<AuthData>> {
+    return this.api.post<ApiResponse<AuthData>>(ENDPOINTS.auth.register, dto).pipe(
+      switchMap(response => {
+        if (response.ok && response.data.access_token) {
+          return from(this.storage.set(TOKEN_KEY, response.data.access_token)).pipe(
+            tap(() => this.authState$.next(true)),
+            map(() => response)
+          );
+        }
+        return of(response);
       })
     );
   }
@@ -75,6 +88,7 @@ export class AuthService {
   }
 
   async getToken(): Promise<string | null> {
+    await this.storage.ready();
     return await this.storage.get<string>(TOKEN_KEY);
   }
 
@@ -92,7 +106,7 @@ export class AuthService {
 
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      return decoded.userId || null;
+      return decoded.sub || null;
     } catch (error) {
       console.error('Error decoding token:', error);
       return null;
@@ -119,5 +133,10 @@ export class AuthService {
     const expiration = await this.getTokenExpiration();
     if (!expiration) return true;
     return expiration.getTime() < Date.now();
+  }
+
+  /** GET /auth/profile */
+  getProfile(): Observable<ApiResponse<any>> {
+    return this.api.get<ApiResponse<any>>(ENDPOINTS.auth.profile);
   }
 }

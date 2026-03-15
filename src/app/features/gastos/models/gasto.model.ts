@@ -1,3 +1,4 @@
+// ── Entidad base ──────────────────────────────────────────────────────────
 export interface Gasto {
   id: number;
   monto: number;
@@ -11,60 +12,25 @@ export interface Gasto {
   cuotaActual: number;
 }
 
+// ── CreateGastoRequest (POST /gastos) ─────────────────────────────────────
+// Coincide con CreateGastoDto del backend
 export interface CreateGastoRequest {
   usuarioId: number;
   tarjetaId: number;
-  categoriaId: number;
-  descripcion: string;
-  monto: number;
-  moneda: string;
-  fechaCompra: string;
-  tipo: 1 | 2 | 3;
-  cuotas?: number; // Solo para tipo 2
-}
-
-export interface TarjetaFormItem {
-  id: number;
-  nombreTarjeta: string;
-  numeroTarjeta: string;
-  limiteCredito: number;
-  limiteDisponible: number;
-  gastoActual: number;
-  diaCierre: number;
-  diaVencimiento: number;
-  cierreActual: string;
-  vencimientoActual: string;
-  banco: { id: number; nombre: string };
-}
-
-export interface CategoriaFormItem {
-  id: number;
-  nombre: string;
-  es_global: boolean;
-  color_hex: string;
-  icono: string;
-}
-
-export interface CreateCategoriaRequest {
-  nombre: string;
-  es_global: boolean;
-  color_hex: string;
-  icono: string;
-}
-
-export interface UpdateGastoDto extends Partial<CreateGastoRequest> {}
-
-export interface GastosFiltro {
-  page: number;
-  size: number;
-  tarjetaId?: number;
   categoriaId?: number;
-  desde?: string;
-  hasta?: string;
+  descripcion?: string;
+  monto: number;
+  moneda: 'ARS' | 'USD';
+  fechaCompra: string;
+  /** 1=Normal, 2=Cuotas, 3=Débito automático */
+  tipo: 1 | 2 | 3;
+  cuotas?: number; // Solo para tipo=2
 }
 
-// ── Gastos Listado API ────────────────────────────────────────────────────
+// ── UpdateGastoDto (pendiente de implementación en backend) ───────────────
+// export interface UpdateGastoDto extends Partial<CreateGastoRequest> {}
 
+// ── Filtros para GET /gastos ──────────────────────────────────────────────
 export interface GastoListadoFiltro {
   tarjetaId?: number;
   categoriaId?: number;
@@ -77,6 +43,7 @@ export interface GastoListadoFiltro {
   orderDirection?: 'ASC' | 'DESC';
 }
 
+// ── Item del listado completo (GET /gastos) ───────────────────────────────
 export interface GastoListadoItem {
   id: number;
   gastoId: number;
@@ -112,3 +79,47 @@ export interface GastosListadoResponse {
   };
   filtros?: Record<string, any>;
 }
+
+// ── Dashboard de gastos (GET /gastos/dashboard) ───────────────────────────
+export interface GastoDashboardFiltro {
+  limit?: number;
+  tarjetaId?: number;
+  categoriaId?: number;
+  fechaDesde?: string;
+  fechaHasta?: string;
+}
+
+export interface GastoDashboardItem {
+  id: number;
+  fecha: string;
+  descripcion: string;
+  monto: number;
+  moneda: string;
+  categoria: {
+    id: number;
+    nombre: string;
+    color_hex?: string;
+    icono?: string;
+  };
+  tarjeta: {
+    id: number;
+    nombre: string;
+    banco: {
+      id: number;
+      nombre: string;
+    };
+  };
+  totalCuotas?: number;
+  cuotaActual?: number;
+  esDebitoAuto: boolean;
+}
+
+export interface GastossDashboardResponse {
+  gastos: GastoDashboardItem[];
+  periodo: {
+    desde: string;
+    hasta: string;
+    esFiltroPorDefecto: boolean;
+  };
+}
+

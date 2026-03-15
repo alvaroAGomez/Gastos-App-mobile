@@ -1,7 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonModal } from '@ionic/angular';
-import { TarjetaFormItem, CategoriaFormItem, CreateGastoRequest } from '../../models/gasto.model';
+import { CreateGastoRequest } from '../../models/gasto.model';
+import { TarjetasCreditoService } from '../../../tarjetas/services/tarjetas-credito.service';
+import { CategoriasService } from '../../../categorias/services/categorias.service';
+import { GastosService } from '../../services/gastos.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { TarjetaCredito } from '../../../tarjetas/models/tarjeta.model';
+import { Categoria } from '../../../categorias/models/categoria.model';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-gasto-form',
@@ -15,6 +23,8 @@ export class GastoFormPage implements OnInit {
 
   isEditMode = false;
   gastoId: number | null = null;
+  loading = false;
+  saving = false;
 
   // Monto: stored as display string, formatted with thousands dots and decimal comma
   montoDisplay: string = '';
@@ -38,7 +48,7 @@ export class GastoFormPage implements OnInit {
   fechaCompra: string = new Date().toISOString();
   tipo: 1 | 2 | 3 = 1;
   cuotasTexto: string = '3';
-  moneda: string = 'ARS';
+  moneda: 'ARS' | 'USD' = 'ARS';
 
   get cuotas(): number {
     const v = parseInt(this.cuotasTexto);
@@ -50,48 +60,24 @@ export class GastoFormPage implements OnInit {
   get hoy(): string { return new Date().toISOString(); }
 
   selectedTarjetaId: number | null = null;
-  selectedCategoria: CategoriaFormItem | null = null;
+  selectedCategoria: Categoria | null = null;
   categoriaSearch: string = '';
+  pendingCategoria: Categoria | null = null;
 
-  tarjetas: TarjetaFormItem[] = [
-    {
-      id: 1, nombreTarjeta: 'Visa Signature', numeroTarjeta: '**** **** **** 1234',
-      limiteCredito: 1500000, limiteDisponible: 980000, gastoActual: 520000,
-      diaCierre: 25, diaVencimiento: 10,
-      cierreActual: '2026-02-25T00:00:00.000Z', vencimientoActual: '2026-03-10T00:00:00.000Z',
-      banco: { id: 2, nombre: 'Banco Galicia' }
-    },
-    {
-      id: 2, nombreTarjeta: 'Mastercard Black', numeroTarjeta: '**** **** **** 5678',
-      limiteCredito: 1000000, limiteDisponible: 660000, gastoActual: 340000,
-      diaCierre: 20, diaVencimiento: 5,
-      cierreActual: '2026-02-20T00:00:00.000Z', vencimientoActual: '2026-03-05T00:00:00.000Z',
-      banco: { id: 1, nombre: 'BBVA' }
-    }
-  ];
+  tarjetas: TarjetaCredito[] = [];
+  categorias: Categoria[] = [];
 
-  categorias: CategoriaFormItem[] = [
-    { id: 1,  nombre: 'Hogar',           es_global: true, color_hex: '#6366f1', icono: 'home' },
-    { id: 2,  nombre: 'Supermercado',    es_global: true, color_hex: '#10b981', icono: 'cart' },
-    { id: 3,  nombre: 'Transporte',      es_global: true, color_hex: '#f97316', icono: 'car' },
-    { id: 4,  nombre: 'Comida',          es_global: true, color_hex: '#ef4444', icono: 'restaurant' },
-    { id: 5,  nombre: 'Entretenimiento', es_global: true, color_hex: '#a855f7', icono: 'film' },
-    { id: 6,  nombre: 'Salud',           es_global: true, color_hex: '#06b6d4', icono: 'medkit' },
-    { id: 7,  nombre: 'Educación',       es_global: true, color_hex: '#3b82f6', icono: 'school' },
-    { id: 8,  nombre: 'Mascotas',        es_global: true, color_hex: '#f59e0b', icono: 'paw' },
-    { id: 9,  nombre: 'Viajes',          es_global: true, color_hex: '#14b8a6', icono: 'airplane' },
-    { id: 10, nombre: 'Gym',             es_global: true, color_hex: '#ec4899', icono: 'barbell' },
-    { id: 11, nombre: 'Compras',         es_global: true, color_hex: '#e879f9', icono: 'bag-handle' },
-    { id: 12, nombre: 'Servicios',       es_global: true, color_hex: '#64748b', icono: 'receipt' },
-    { id: 13, nombre: 'Suscripciones',   es_global: true, color_hex: '#9c27b0', icono: 'musical-notes' },
-    { id: 14, nombre: 'Indumentaria',    es_global: true, color_hex: '#FF9800', icono: 'shirt' },
-  ];
-
-  get categoriasFiltradas(): CategoriaFormItem[] {
+  get categoriasFiltradas(): Categoria[] {
     if (!this.categoriaSearch.trim()) return this.categorias;
     return this.categorias.filter(c =>
       c.nombre.toLowerCase().includes(this.categoriaSearch.toLowerCase())
     );
+  }
+
+  get categoriasQuick(): Categoria[] {
+    if (!this.selectedCategoria) return this.categorias.slice(0, 5);
+    const others = this.categorias.filter(c => c.id !== this.selectedCategoria!.id);
+    return [this.selectedCategoria, ...others].slice(0, 5);
   }
 
   get cuotasMensual(): number {
@@ -99,7 +85,7 @@ export class GastoFormPage implements OnInit {
     return this.montoNumero / this.cuotas;
   }
 
-  get tarjetaSeleccionada(): TarjetaFormItem | undefined {
+  get tarjetaSeleccionada(): TarjetaCredito | undefined {
     return this.tarjetas.find(t => t.id === this.selectedTarjetaId);
   }
 
@@ -110,12 +96,74 @@ export class GastoFormPage implements OnInit {
     return new Date(this.fechaCompra).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
   }
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router,
+    private tarjetasService: TarjetasCreditoService,
+    private categoriasService: CategoriasService,
+    private gastosService: GastosService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) { this.isEditMode = true; this.gastoId = +id; }
-    if (this.tarjetas.length > 0) this.selectedTarjetaId = this.tarjetas[0].id;
+    if (id) {
+      this.isEditMode = true;
+      this.gastoId = +id;
+    }
+  }
+
+  ionViewWillEnter() {
+    const navState = history.state;
+    const nuevaCategoria: Categoria | null = navState?.nuevaCategoria ?? null;
+
+    this.resetForm();
+
+    if (nuevaCategoria) {
+      this.pendingCategoria = nuevaCategoria;
+    }
+
+    this.loadInitialData();
+  }
+
+  private resetForm() {
+    this.montoDisplay = '';
+    this.descripcion = '';
+    this.fechaCompra = new Date().toISOString();
+    this.tipo = 1;
+    this.cuotasTexto = '3';
+    this.selectedCategoria = null;
+    this.selectedTarjetaId = null;
+    this.categoriaSearch = '';
+    this.pendingCategoria = null;
+  }
+
+  loadInitialData() {
+    this.loading = true;
+    forkJoin({
+      tarjetas: this.tarjetasService.getAll().pipe(catchError(() => of([]))),
+      categorias: this.categoriasService.getAll().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: (res: any) => {
+        this.tarjetas = res.tarjetas || [];
+        this.categorias = (res.categorias || []).sort((a: Categoria, b: Categoria) =>
+          a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
+
+        if (this.tarjetas.length > 0 && !this.selectedTarjetaId) {
+          this.selectedTarjetaId = this.tarjetas[0].id;
+        }
+        if (this.pendingCategoria) {
+          const id = this.pendingCategoria.id;
+          this.selectedCategoria = this.categorias.find(c => c.id === id) || this.pendingCategoria;
+          this.pendingCategoria = null;
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando datos iniciales:', err);
+        this.loading = false;
+      }
+    });
   }
 
   // ── Monto formatting ─────────────────────────────────────────────────────
@@ -159,7 +207,7 @@ export class GastoFormPage implements OnInit {
   }
 
   // ── Category ────────────────────────────────────────────────────────────
-  selectCategoria(cat: CategoriaFormItem) {
+  selectCategoria(cat: Categoria) {
     this.selectedCategoria = cat;
     this.categoriaModal.dismiss();
   }
@@ -176,9 +224,11 @@ export class GastoFormPage implements OnInit {
 
   onFechaChange(event: any) { this.fechaCompra = event.detail.value; }
 
-  buildPayload(): CreateGastoRequest {
+  async buildPayload(): Promise<CreateGastoRequest> {
+    const usuarioId = await this.authService.getUserId();
+
     return {
-      usuarioId: 1,
+      usuarioId: usuarioId || 1,
       tarjetaId: this.selectedTarjetaId!,
       categoriaId: this.selectedCategoria!.id,
       descripcion: this.descripcion,
@@ -189,11 +239,27 @@ export class GastoFormPage implements OnInit {
       ...(this.tipo === 2 ? { cuotas: this.cuotas } : {})
     };
   }
-
-  guardarGasto() {
+ 
+  async guardarGasto() {
     if (!this.montoNumero || !this.selectedTarjetaId || !this.selectedCategoria || !this.descripcion) return;
-    console.log('Guardar gasto:', this.buildPayload());
-    this.router.navigate(['/app/gastos']);
+    
+    this.saving = true;
+    try {
+      const payload = await this.buildPayload();
+      this.gastosService.createGasto(payload).subscribe({
+        next: () => {
+          this.saving = false;
+          this.router.navigate(['/app/gastos']);
+        },
+        error: (err) => {
+          console.error('Error guardando gasto:', err);
+          this.saving = false;
+        }
+      });
+    } catch (err) {
+      console.error('Error al construir payload:', err);
+      this.saving = false;
+    }
   }
 
   cancelar() { this.router.navigate(['/app']); }

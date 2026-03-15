@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { IonInfiniteScroll } from '@ionic/angular';
 import { GastoListadoItem, GastoListadoFiltro, GastosListadoResponse } from '../../models/gasto.model';
-import { TarjetaFormItem, CategoriaFormItem } from '../../models/gasto.model';
 import { GastosService } from '../../services/gastos.service';
 import { TarjetasCreditoService } from '../../../tarjetas/services/tarjetas-credito.service';
 import { CategoriasService } from '../../../categorias/services/categorias.service';
@@ -113,8 +112,8 @@ export class GastosListadoPage implements OnInit {
 
   // Active filter chips
   activeDateFilter: string | null = null;
-  activeTarjetaFilter: TarjetaFormItem | null = null;
-  activeCategoriaFilter: CategoriaFormItem | null = null;
+  activeTarjetaFilter: TarjetaCredito | null = null;
+  activeCategoriaFilter: Categoria | null = null;
 
   // Filter sheets visibility
   showTarjetaSheet = false;
@@ -122,7 +121,7 @@ export class GastosListadoPage implements OnInit {
 
 
   // ── Mock data (Development Fallback) ──────────────────────────
-  private readonly MOCK_TARJETAS: TarjetaFormItem[] = [
+  private readonly MOCK_TARJETAS: TarjetaCredito[] = [
     {
       id: 1, nombreTarjeta: 'Visa Signature', numeroTarjeta: '**** **** **** 1234',
       limiteCredito: 1500000, limiteDisponible: 980000, gastoActual: 520000,
@@ -139,7 +138,7 @@ export class GastosListadoPage implements OnInit {
     }
   ];
 
-  private readonly MOCK_CATEGORIAS: CategoriaFormItem[] = [
+  private readonly MOCK_CATEGORIAS: Categoria[] = [
     { id: 1,  nombre: 'Hogar',           es_global: true, color_hex: '#6366f1', icono: 'home' },
     { id: 2,  nombre: 'Supermercado',    es_global: true, color_hex: '#10b981', icono: 'cart' },
     { id: 3,  nombre: 'Transporte',      es_global: true, color_hex: '#f97316', icono: 'car' },
@@ -181,8 +180,8 @@ export class GastosListadoPage implements OnInit {
   ];
 
 
-  tarjetas: TarjetaFormItem[] = [...this.MOCK_TARJETAS];
-  categorias: CategoriaFormItem[] = [...this.MOCK_CATEGORIAS];
+  tarjetas: TarjetaCredito[] = [...this.MOCK_TARJETAS];
+  categorias: Categoria[] = [...this.MOCK_CATEGORIAS];
 
   constructor(
     private gastosService: GastosService,
@@ -200,30 +199,16 @@ export class GastosListadoPage implements OnInit {
     this.tarjetasService.getAll().subscribe({
       next: (ts: TarjetaCredito[]) => {
         if (ts && ts.length > 0) {
-          this.tarjetas = ts.map(t => ({
-            id: t.id,
-            nombreTarjeta: t.nombre,
-            numeroTarjeta: `**** **** **** ${t.ultimosDigitos}`,
-            limiteCredito: t.cupoTotal, limiteDisponible: t.cupoDisponible, gastoActual: t.gastosMesActual || 0,
-            diaCierre: t.diaCierre, diaVencimiento: t.diaVencimiento,
-            cierreActual: '', vencimientoActual: '',
-            banco: { id: 0, nombre: t.banco }
-          })) as any[];
+          this.tarjetas = ts;
         }
       },
       error: () => console.log('Using mock cards')
     });
 
-    this.categoriasService.getCategoriasGlobales().subscribe({
+    this.categoriasService.getAll().subscribe({
       next: (cs: Categoria[]) => {
         if (cs && cs.length > 0) {
-          this.categorias = cs.map(c => ({
-            id: c.id,
-            nombre: c.nombre,
-            es_global: !c.esPersonalizada,
-            color_hex: c.color || '#666',
-            icono: c.icono
-          })) as any[];
+          this.categorias = cs;
         }
       },
       error: () => console.log('Using mock categories')
@@ -322,14 +307,14 @@ export class GastosListadoPage implements OnInit {
   }
 
   // ── Filter methods ───────────────────────────────────────────
-  selectTarjeta(t: TarjetaFormItem) {
+  selectTarjeta(t: TarjetaCredito) {
     this.activeTarjetaFilter = t;
     this.filtros.tarjetaId = t.id;
     this.showTarjetaSheet = false;
     this.reload();
   }
 
-  selectCategoria(c: CategoriaFormItem) {
+  selectCategoria(c: Categoria) {
     this.activeCategoriaFilter = c;
     this.filtros.categoriaId = c.id;
     this.showCategoriaSheet = false;

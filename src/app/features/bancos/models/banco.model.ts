@@ -1,6 +1,5 @@
 export interface Banco {
   id: number;
   nombre: string;
-  icono: string;
-  color?: string;
+  logo_url?: string;
 }

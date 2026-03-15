@@ -16,28 +16,33 @@
                 </div>
             </header>
 
+            <!-- Loader -->
+            <div *ngIf="loading" class="section-block">
+                <ion-skeleton-text [animated]="true"
+                    style="width: 100%; height: 120px; border-radius: 20px;"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true"
+                    style="width: 100%; height: 70px; border-radius: 20px; margin-top: 15px;"></ion-skeleton-text>
+            </div>
+
             <!-- Gastado este mes card -->
-            <div class="section-block gastos-card">
+            <div *ngIf="!loading" class="section-block gastos-card">
                 <div class="glow-orb"></div>
                 <p class="stat-label">GASTADO ESTE MES</p>
-                <h2 class="stat-amount">${{ summary.gastosEsteMes | number:'1.0-0' }},00</h2>
+                <h2 class="stat-amount">${{ summary.gastosEsteMes | number:'1.0-0' }}</h2>
                 <div class="trend-pill">
                     <ion-icon name="trending-up"></ion-icon>
-                    <span>+12% vs mes pasado</span>
+                    <span>Datos reales de este mes</span>
                 </div>
             </div>
 
-            <!-- Cuotas pendientes -->
-            <div class="section-block cuotas-card">
+            <!-- Próximo cierre -->
+            <div *ngIf="!loading && summary.proximoCierre" class="section-block cuotas-card">
                 <div class="cuotas-icon-wrap">
-                    <ion-icon name="albums-outline"></ion-icon>
+                    <ion-icon name="calendar-outline"></ion-icon>
                 </div>
                 <div class="cuotas-text">
-                    <p class="cuotas-label">Cuotas pendientes</p>
-                    <p class="cuotas-amount">$128.400 <span class="cuotas-count">• 6 cuotas</span></p>
-                </div>
-                <div class="cuotas-arrow">
-                    <ion-icon name="chevron-forward"></ion-icon>
+                    <p class="cuotas-label">Próximo Cierre</p>
+                    <p class="cuotas-amount">{{ summary.proximoCierre }}</p>
                 </div>
             </div>
 

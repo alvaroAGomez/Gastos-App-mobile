@@ -72,10 +72,10 @@ export class TarjetaCreditoFormPage implements OnInit {
     this.tcService.getById(this.tarjetaId).subscribe({
       next: (t: TarjetaCredito) => {
         this.cardForm.patchValue({
-          bancoId: 1, // Mock mapping since real ID might vary
-          numeroTarjeta: t.ultimosDigitos,
-          nombreTarjeta: t.nombre,
-          limiteCredito: t.cupoTotal,
+          bancoId: t.banco?.id || 1, 
+          numeroTarjeta: t.numeroTarjeta.slice(-4),
+          nombreTarjeta: t.nombreTarjeta,
+          limiteCredito: t.limiteCredito,
           diaCierreDefault: t.diaCierre,
           diaVencimientoDefault: t.diaVencimiento,
           color: t.color

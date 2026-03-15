@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CategoriasService } from '../../services/categorias.service';
 import { Categoria } from '../../models/categoria.model';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-categorias',
@@ -11,6 +13,7 @@ import { Categoria } from '../../models/categoria.model';
 export class CategoriasPage implements OnInit {
   categoriasGlobales: Categoria[] = [];
   categoriasPersonales: Categoria[] = [];
+  loading = false;
 
   constructor(private categoriasService: CategoriasService) {}
 
@@ -19,8 +22,19 @@ export class CategoriasPage implements OnInit {
   }
 
   loadCategorias() {
-    // Implementar carga paralela o secuencial
-    this.categoriasService.getCategoriasGlobales().subscribe(data => this.categoriasGlobales = data);
-    this.categoriasService.getCategoriasUsuario().subscribe(data => this.categoriasPersonales = data);
+    this.loading = true;
+    forkJoin({
+      globales: this.categoriasService.getCategoriasGlobales().pipe(catchError(() => of([]))),
+      usuario: this.categoriasService.getCategoriasUsuario().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: (res) => {
+        this.categoriasGlobales = res.globales;
+        this.categoriasPersonales = res.usuario;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 }

@@ -16,7 +16,6 @@ export class AuthGuard implements CanActivate {
   canActivate(): Observable<boolean | UrlTree> {
     return this.authService.isLoggedIn().pipe(
       map(isLoggedIn => {
-        return true;
         if (isLoggedIn) {
           return true;
         } else {

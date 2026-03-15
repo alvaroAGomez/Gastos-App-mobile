@@ -1,22 +1,36 @@
+// Responde al DTO real del backend: TarjetaCreditoResponseDto
 export interface TarjetaCredito {
   id: number;
-  nombre: string;
-  banco: string;
-  ultimosDigitos: string;
+  nombre?: string;         // Backend Entity (optional for compat)
+  nombreTarjeta: string;  // Backend DTO (sometimes used)
+  numeroTarjeta: string;
+  ultimos4Digitos?: string; // Backend Entity (optional for compat)
+  limiteCredito: number;
+  limite_total?: number;    // Backend Entity (optional for compat)
+  limiteDisponible: number;
+  gastoActual: number;
   diaCierre: number;
+  dia_cierre_default?: number; // Backend Entity
   diaVencimiento: number;
-  cupoTotal: number;
-  cupoDisponible: number;
+  dia_vencimiento_default?: number; // Backend Entity
+  cierreActual: string;
+  vencimientoActual: string;
   color?: string;
-  gastosMesActual?: number;
+  banco: {
+    id: number;
+    nombre: string;
+    logo_url?: string;
+  };
 }
 
-export interface TarjetaDebito {
-  id: number;
-  nombre: string;
-  banco: string;
-  ultimosDigitos: string;
-  saldo: number;
+// Backend: UpdateTarjetaCreditoDto (PUT /tarjetas-credito/:id)
+export interface TarjetaCreditoRequest {
+  bancoId: number;
+  numeroTarjeta: string;
+  nombreTarjeta: string;
+  limiteCredito: number;
+  diaCierreDefault: number;
+  diaVencimientoDefault: number;
   color?: string;
 }
 
@@ -26,13 +40,13 @@ export interface Banco {
   logo_url?: string;
 }
 
-export interface TarjetaCreditoRequest {
-  bancoId: number;
-  numeroTarjeta: string; 
-  nombreTarjeta: string;
-  limiteCredito: number;
-  diaCierreDefault: number;
-  diaVencimientoDefault: number;
+// ── Tarjeta Débito (pendiente de implementación en backend) ──────────────
+export interface TarjetaDebito {
+  id: number;
+  nombre: string;
+  banco: string;
+  ultimosDigitos: string;
+  saldo: number;
   color?: string;
 }
 
@@ -43,19 +57,26 @@ export interface CreateTarjetaDebitoDto {
   saldoInicial: number;
   color?: string;
 }
-export interface MesProyeccion {
-  mes: string;
-  nombreMes: string;
-  total: number;
+
+// ── Detalle Dashboard (/tarjetas-credito/:id/detalle-dashboard) ──────────
+export interface DetalleDashboardTarjeta {
+  id: number;
+  nombreTarjeta: string;
+  limiteCredito: number;
+  limiteDisponible: number;
+  gastoActual: number;
+  diaCierre: number;
+  diaVencimiento: number;
+  cierreActual: string;
+  vencimientoActual: string;
+  banco: { id: number; nombre: string; logo_url?: string };
+  gastosEsteMes: number;
+  cuotasPendientesTotales: number;
+  proximoCierre: string;
+  [key: string]: any;
 }
 
-export interface Proyeccion12Meses {
-  gastosPorMes: MesProyeccion[];
-  totalProyectado12Meses: number;
-  promedioMensual: number;
-  mesConMayorGasto: MesProyeccion;
-  mesConMenorGasto: MesProyeccion;
-}
+// ── Cuotas Pendientes (/tarjetas-credito/:id/cuotas-pendientes) ──────────
 export interface CuotaPendiente {
   gastoId: number;
   nombreGasto: string;
@@ -78,7 +99,22 @@ export interface ReporteCuotasPendientes {
   cuotasPendientes: CuotaPendiente[];
   totalPendiente: number;
   totalGastosConCuotasPendientes: number;
-  pagadoEsteMes?: number; // Added to match design
-  cuotasRestantesTotales?: number; // Added to match design
-  proximoVencimiento?: string; // Added to match design
+  pagadoEsteMes?: number;
+  cuotasRestantesTotales?: number;
+  proximoVencimiento?: string;
+}
+
+// ── Proyección 12 meses (/tarjetas-credito/:id/proyeccion-12-meses) ──────
+export interface MesProyeccion {
+  mes: string;
+  nombreMes: string;
+  total: number;
+}
+
+export interface Proyeccion12Meses {
+  gastosPorMes: MesProyeccion[];
+  totalProyectado12Meses: number;
+  promedioMensual: number;
+  mesConMayorGasto: MesProyeccion;
+  mesConMenorGasto: MesProyeccion;
 }

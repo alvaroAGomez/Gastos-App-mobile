@@ -103,12 +103,16 @@
         <!-- Tarjeta Selector -->
         <div class="field-section">
             <p class="field-label">Método de Pago</p>
-            <div class="tarjetas-row">
+            <div class="tarjetas-row" *ngIf="!loading">
                 <button class="tarjeta-chip" *ngFor="let t of tarjetas" [class.selected]="selectedTarjetaId === t.id"
                     (click)="selectedTarjetaId = t.id">
                     <ion-icon name="card-outline"></ion-icon>
-                    <span>{{ t.nombreTarjeta.split(' ')[0] }} • {{ t.numeroTarjeta.slice(-4) }}</span>
+                    <span>{{ (t.nombre || t.nombreTarjeta).split(' ')[0] }} • {{ (t.ultimos4Digitos || t.numeroTarjeta).slice(-4) }}</span>
                 </button>
+            </div>
+            <div class="tarjetas-row" *ngIf="loading">
+                <ion-skeleton-text [animated]="true" style="width: 120px; height: 36px; border-radius: 12px; margin-right: 10px;"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width: 120px; height: 36px; border-radius: 12px;"></ion-skeleton-text>
             </div>
         </div>
 
@@ -140,11 +144,11 @@
         <!-- Categoria (quick row + más) -->
         <div class="field-section">
             <p class="field-label">Categoría</p>
-            <div class="categorias-row">
-                <button class="cat-quick" *ngFor="let cat of categorias.slice(0, 5)"
+            <div class="categorias-row" *ngIf="!loading">
+                <button class="cat-quick" *ngFor="let cat of categoriasQuick"
                     [class.selected]="selectedCategoria?.id === cat.id" (click)="selectedCategoria = cat">
                     <div class="cat-quick-icon"
-                        [style.background]="selectedCategoria?.id === cat.id ? cat.color_hex : cat.color_hex + '28'"
+                        [style.background]="selectedCategoria?.id === cat.id ? cat.color_hex : (cat.color_hex + '28')"
                         [style.border-color]="cat.color_hex + '66'">
                         <ion-icon [name]="cat.icono"
                             [style.color]="selectedCategoria?.id === cat.id ? '#ffffff' : cat.color_hex">
@@ -159,6 +163,9 @@
                     <span class="cat-quick-label">Más</span>
                 </button>
             </div>
+            <div class="categorias-row" *ngIf="loading">
+                <ion-skeleton-text [animated]="true" style="width: 60px; height: 80px; border-radius: 12px; margin-right: 15px;" *ngFor="let i of [1,2,3,4]"></ion-skeleton-text>
+            </div>
         </div>
 
     </div>
@@ -166,9 +173,13 @@
 
 <!-- Save Button -->
 <ion-footer class="form-footer ion-no-border">
-    <button class="save-btn" [class.disabled]="!montoNumero || !selectedTarjetaId || !selectedCategoria || !descripcion"
+    <button class="save-btn" 
+        [class.disabled]="!montoNumero || !selectedTarjetaId || !selectedCategoria || !descripcion || saving"
+        [disabled]="saving"
         (click)="guardarGasto()">
-        <span>Guardar Gasto</span>
-        <ion-icon name="checkmark"></ion-icon>
+        <span *ngIf="!saving">Guardar Gasto</span>
+        <span *ngIf="saving">Guardando...</span>
+        <ion-icon *ngIf="!saving" name="checkmark"></ion-icon>
+        <ion-spinner *ngIf="saving" name="crescent"></ion-spinner>
     </button>
 </ion-footer>

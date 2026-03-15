@@ -1,3 +1,15 @@
+export interface ProximoCierreDto {
+  fecha: string;
+  nombreTarjeta: string;
+  tipo: 'cierre';
+}
+
+export interface ResumenFinancieroDto {
+  totalDisponible: number;
+  gastosEsteMes: number;
+  proximoCierre: ProximoCierreDto | null;
+}
+
 export interface DashboardSummary {
   totalDisponible: number;
   gastosEsteMes: number;
@@ -16,9 +28,8 @@ export interface Categoria {
   icono: string;
 }
 
-export interface TarjetaDashboard {
+export interface ResumenTarjetaDashboard {
   tarjetaId: number;
-  id?: number; // Para compatibilidad con otros servicios
   nombreTarjeta: string;
   ultimos4: string;
   banco: string;
@@ -27,8 +38,18 @@ export interface TarjetaDashboard {
   gastosFuturos: number;
   limiteDisponible: number;
   porcentajeUso: number;
-  fechaCierre?: string;
+}
+
+export interface DashboardTarjetasResponse {
+  tarjetas: ResumenTarjetaDashboard[];
+  totalLimiteDisponible: number;
+  totalLimite: number;
+}
+
+export interface TarjetaDashboard extends ResumenTarjetaDashboard {
+  id?: number; // Para compatibilidad
   color?: string; // Para UI personalizada
+  fechaCierre?: string;
 }
 
 export interface TarjetaSimple {

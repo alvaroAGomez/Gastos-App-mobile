@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CreateCategoriaRequest } from '../../../gastos/models/gasto.model';
+import { Categoria, CreateCategoriaDto } from '../../models/categoria.model';
+import { CategoriasService } from '../../services/categorias.service';
 
 interface IconOption { name: string; label: string; }
 
@@ -12,6 +13,7 @@ interface IconOption { name: string; label: string; }
 })
 export class CategoriaFormPage implements OnInit {
   isEditMode = false;
+  saving = false;
 
   nombre: string = '';
   selectedColor: string = '#10b981';
@@ -44,14 +46,21 @@ export class CategoriaFormPage implements OnInit {
     { name: 'bag-handle',      label: 'Bolsa' },
   ];
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router,
+    private categoriasService: CategoriasService
+  ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.isEditMode = true;
+    if (id) {
+       this.isEditMode = true;
+       // TODO: cargar data para editar si fuera necesario
+    }
   }
 
-  buildPayload(): CreateCategoriaRequest {
+  buildPayload(): CreateCategoriaDto {
     return {
       nombre: this.nombre,
       es_global: false,
@@ -62,10 +71,20 @@ export class CategoriaFormPage implements OnInit {
 
   crear() {
     if (!this.nombre.trim()) return;
+    
+    this.saving = true;
     const payload = this.buildPayload();
-    console.log('Crear categoría:', payload);
-    // TODO: llamar al service
-    this.router.navigate(['/app/gastos/nuevo']);
+    
+    this.categoriasService.create(payload).subscribe({
+      next: (categoria: Categoria) => {
+        this.saving = false;
+        this.router.navigate(['/app/gastos/nuevo'], { state: { nuevaCategoria: categoria } });
+      },
+      error: (err) => {
+        console.error('Error creando categoría:', err);
+        this.saving = false;
+      }
+    });
   }
 
   cancelar() {

@@ -59,7 +59,7 @@ export class TarjetasHomePage implements OnInit {
   }
 
   calculateTotalDeuda() {
-    this.deudaTotal = this.tarjetasCredito.reduce((sum, t) => sum + (t.gastosMesActual || 0), 0);
+    this.deudaTotal = this.tarjetasCredito.reduce((sum, t) => sum + (t.gastoActual || 0), 0);
   }
 
   segmentChanged(event: any) {
@@ -71,8 +71,8 @@ export class TarjetasHomePage implements OnInit {
   }
 
   getPorcentajeConsumo(t: TarjetaCredito): number {
-    if (!t.cupoTotal) return 0;
-    return Math.round(((t.gastosMesActual || 0) / t.cupoTotal) * 100);
+    if (!t.limiteCredito) return 0;
+    return Math.round(((t.gastoActual || 0) / t.limiteCredito) * 100);
   }
 
   getBarColor(porcentaje: number): string {
@@ -86,12 +86,12 @@ export class TarjetasHomePage implements OnInit {
       const porcentaje = this.getPorcentajeConsumo(t);
       return {
         id: t.id,
-        nombreTarjeta: t.nombre,
+        nombreTarjeta: t.nombreTarjeta,
         banco: t.banco,
-        ultimos4: t.ultimosDigitos,
-        limiteTotal: t.cupoTotal,
-        limiteDisponible: t.cupoDisponible,
-        gastosEsteMes: t.gastosMesActual || 0,
+        ultimos4: t.numeroTarjeta,
+        limiteTotal: t.limiteCredito,
+        limiteDisponible: t.limiteDisponible,
+        gastosEsteMes: t.gastoActual || 0,
         porcentajeUso: porcentaje,
         fechaCierre: `${t.diaCierre}/04`, // Hardcoded month for demo visual
         color: t.color || '#1e1b4b'

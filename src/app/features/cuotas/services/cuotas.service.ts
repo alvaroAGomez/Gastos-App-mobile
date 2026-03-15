@@ -1,29 +1,45 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ApiService } from '../../../core/services/api.service';
-import { ENDPOINTS } from '../../../core/constants/endpoints';
-import { Cuota, ResumenAnualCuotas, ResumenMensualCuotas } from '../models/cuota.model';
+import { Observable, of } from 'rxjs';
+import { TarjetasCreditoService } from '../../tarjetas/services/tarjetas-credito.service';
+import { ReporteCuotasPendientes, CuotaPendiente } from '../../tarjetas/models/tarjeta.model';
 
+/**
+ * CuotasService
+ * Las cuotas se gestionan a través de TarjetasCredito en el backend.
+ * Endpoints reales:
+ *   - GET /tarjetas-credito/:id/cuotas-pendientes
+ *   - GET /tarjetas-credito/:id/proyeccion-12-meses
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class CuotasService {
-  constructor(private api: ApiService) {}
+  constructor(private tarjetasService: TarjetasCreditoService) {}
 
-  getCuotasPendientes(): Observable<Cuota[]> {
-    return this.api.get<Cuota[]>(ENDPOINTS.cuotas.pendientes);
+  /**
+   * Obtiene las cuotas pendientes de una tarjeta específica.
+   * GET /tarjetas-credito/:tarjetaId/cuotas-pendientes
+   */
+  getCuotasPendientesByTarjeta(tarjetaId: number): Observable<ReporteCuotasPendientes> {
+    return this.tarjetasService.getCuotasPendientes(tarjetaId);
   }
 
-  marcarPagada(id: number): Observable<void> {
-    return this.api.post<void>(ENDPOINTS.cuotas.marcarPagada.replace(':id', id.toString()), {});
+  /**
+   * Placeholder para obtener todas las cuotas pendientes (para cumplir con la UI actual).
+   */
+  getCuotasPendientes(): Observable<any[]> {
+    return of([]);
   }
 
-  // Estos endpoints no estaban definidos en ENDPOINTS original, asumo estructura
-  getResumenMensual(anio: number, mes: number): Observable<ResumenMensualCuotas> {
-    return this.api.get<ResumenMensualCuotas>(`/cuotas/resumen/${anio}/${mes}`);
+  /**
+   * Placeholder para obtener resumen anual (para cumplir con la UI actual).
+   */
+  getResumenAnual(anio: number): Observable<any> {
+    return of(null);
   }
 
-  getResumenAnual(anio: number): Observable<ResumenAnualCuotas> {
-    return this.api.get<ResumenAnualCuotas>(`/cuotas/resumen/${anio}`);
-  }
+  // Los siguientes endpoints no existen en el backend actual (pendiente):
+  // marcarPagada(id: number): Observable<void> { ... }
+  // getResumenMensual(anio: number, mes: number): Observable<ResumenMensualCuotas> { ... }
+  // getResumenAnual(anio: number): Observable<ResumenAnualCuotas> { ... }
 }

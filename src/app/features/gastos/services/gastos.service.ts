@@ -1,9 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from '../../../core/services/api.service';
 import { ENDPOINTS } from '../../../core/constants/endpoints';
-import { PaginatedResponse } from '../../../core/models/api-response.model';
-import { Gasto, CreateGastoRequest, UpdateGastoDto, GastosFiltro, GastoListadoFiltro, GastosListadoResponse } from '../models/gasto.model';
+import { ApiResponse } from '../../../core/models/api-response.model';
+import {
+  Gasto,
+  CreateGastoRequest,
+  GastoListadoFiltro,
+  GastosListadoResponse,
+  GastoDashboardFiltro,
+  GastoDashboardItem,
+} from '../models/gasto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,27 +19,54 @@ import { Gasto, CreateGastoRequest, UpdateGastoDto, GastosFiltro, GastoListadoFi
 export class GastosService {
   constructor(private api: ApiService) {}
 
+  /**
+   * GET /gastos
+   * Listado paginado con filtros opcionales.
+   */
   getGastosPaginados(filtros: GastoListadoFiltro): Observable<GastosListadoResponse> {
-    return this.api.get<GastosListadoResponse>(ENDPOINTS.gastos.base, filtersToParams(filtros));
+    return this.api.get<ApiResponse<GastosListadoResponse>>(ENDPOINTS.gastos.base, filtersToParams(filtros)).pipe(
+      map(res => res.data)
+    );
   }
 
-
-
-  getGastoById(id: number): Observable<Gasto> {
-    return this.api.get<Gasto>(ENDPOINTS.gastos.byId.replace(':id', id.toString()));
+  /**
+   * GET /gastos/dashboard
+   * Últimos gastos para mostrar en el dashboard.
+   */
+  getGastosDashboard(filtros?: GastoDashboardFiltro): Observable<GastoDashboardItem[]> {
+    return this.api.get<ApiResponse<{ gastos: GastoDashboardItem[] }>>(ENDPOINTS.gastos.dashboard, filtros).pipe(
+      map(res => res.data.gastos)
+    );
   }
 
+  /**
+   * POST /gastos
+   * Crear un nuevo gasto (normal, cuotas o débito auto).
+   */
   createGasto(dto: CreateGastoRequest): Observable<Gasto> {
-    return this.api.post<Gasto>(ENDPOINTS.gastos.base, dto);
+    return this.api.post<ApiResponse<Gasto>>(ENDPOINTS.gastos.base, dto).pipe(
+      map(res => res.data)
+    );
   }
 
-  updateGasto(id: number, dto: UpdateGastoDto): Observable<Gasto> {
-    return this.api.put<Gasto>(ENDPOINTS.gastos.byId.replace(':id', id.toString()), dto);
+  /**
+   * POST /gastos/materializar-debito/:debitoConfigId
+   * Generar un gasto puntual a partir de una configuración de débito automático.
+   */
+  materializarDebito(debitoConfigId: number, fecha?: string): Observable<Gasto> {
+    const url = ENDPOINTS.gastos.materializarDebito.replace(
+      ':debitoConfigId',
+      debitoConfigId.toString()
+    );
+    return this.api.post<ApiResponse<Gasto>>(url, fecha ? { fecha } : {}).pipe(
+      map(res => res.data)
+    );
   }
 
-  deleteGasto(id: number): Observable<void> {
-    return this.api.delete<void>(ENDPOINTS.gastos.byId.replace(':id', id.toString()));
-  }
+  // Los siguientes endpoints no existen en el backend actual (pendiente):
+  // getGastoById(id: number): Observable<Gasto> { ... }
+  // updateGasto(id: number, dto: UpdateGastoDto): Observable<Gasto> { ... }
+  // deleteGasto(id: number): Observable<void> { ... }
 }
 
 function filtersToParams(filtros: any): any {

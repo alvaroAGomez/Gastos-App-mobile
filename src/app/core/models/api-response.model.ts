@@ -1,18 +1,24 @@
 export interface ApiResponse<T> {
-  success: boolean;
+  ok: boolean;
   data: T;
-  message?: string;
+  message: string;
+  status: number;
+  error?: string | string[];
 }
 
 export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  size: number;
+  gastos: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface ErrorResponse {
-  success: false;
+  ok: false;
   message: string;
   error?: any;
+  status: number;
 }

@@ -91,13 +91,13 @@ export class TarjetaCreditoDetallePage implements OnInit {
   mapToDashboardCard(t: TarjetaCredito): any {
     return {
       tarjetaId: t.id,
-      nombreTarjeta: t.nombre,
+      nombreTarjeta: t.nombreTarjeta,
       banco: t.banco,
-      ultimos4: t.ultimosDigitos,
-      limiteTotal: t.cupoTotal,
-      limiteDisponible: t.cupoDisponible,
-      gastosEsteMes: t.gastosMesActual || 0,
-      porcentajeUso: Math.round(((t.gastosMesActual || 0) / t.cupoTotal) * 100),
+      ultimos4: t.numeroTarjeta,
+      limiteTotal: t.limiteCredito,
+      limiteDisponible: t.limiteDisponible,
+      gastosEsteMes: t.gastoActual || 0,
+      porcentajeUso: Math.round(((t.gastoActual || 0) / t.limiteCredito) * 100),
       fechaCierre: `${t.diaCierre}/04`,
       color: t.color || '#1e1b4b'
     };
